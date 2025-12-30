@@ -2,11 +2,18 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import type { ItineraryDay } from "@/data/japan";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+type Day = {
+  day: number;
+  date: string;
+  location: string;
+  description: string;
+  icon: string;
+};
+
 type Props = {
-  days: ItineraryDay[];
+  days: Day[];
   currentDay: number;
   onChangeDay: (index: number) => void;
   onPrev: () => void;
@@ -20,34 +27,67 @@ export function ItinerarySection({
   onPrev,
   onNext,
 }: Props) {
-  const active = days[currentDay];
+  const d = days[currentDay];
 
   return (
-    <section id="itinerary" className="min-h-screen px-6 py-24">
+    <section id="itinerary" className="min-h-screen px-6 py-10">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-16 text-center">
+        <div className="mb-5 text-center">
           <h2 className="mb-4 text-5xl font-bold text-balance">Itinerario Día a Día</h2>
-          <p className="text-muted-foreground text-lg text-balance">
-            Navega para descubrir cada día de tu aventura
-          </p>
         </div>
 
-        <div className="relative mb-12">
-          <div className="mb-8 flex items-center justify-center gap-4">
+        {/* Current Day Card - más grande */}
+        <div className="mx-auto mb-5 max-w-5xl">
+          <Card className="bg-card border-border animate-fade-in p-10 transition-all duration-500 md:p-16">
+            <div className="flex flex-col items-start gap-8 md:flex-row">
+              <div className="text-7xl md:text-8xl">{d.icon}</div>
+
+              <div className="w-full flex-1">
+                <div className="mb-6 flex flex-wrap items-center gap-3">
+                  <span className="text-muted-foreground font-mono text-base">
+                    {d.date}
+                  </span>
+                  <span className="text-muted-foreground text-sm">•</span>
+                  <span className="text-accent font-mono text-base">Día {d.day}</span>
+                </div>
+
+                <h3 className="mb-6 text-4xl font-bold text-balance md:text-5xl">
+                  {d.location}
+                </h3>
+
+                <p className="text-muted-foreground text-xl leading-relaxed text-pretty md:text-2xl">
+                  {d.description}
+                </p>
+
+                {/* Placeholder para futuras cosas */}
+                <div className="border-border/50 mt-8 border-t pt-8">
+                  <p className="text-muted-foreground text-sm italic">
+                    Detalles adicionales: horarios, atracciones específicas y rutas
+                    próximamente...
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Controls + Progress */}
+        <div className="relative mx-auto max-w-4xl">
+          <div className="mb-6 flex items-center justify-center gap-6">
             <Button
               variant="outline"
               size="icon"
               onClick={onPrev}
               disabled={currentDay === 0}
-              className="rounded-full bg-transparent"
+              className="h-9 w-9 rounded-full bg-transparent"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground font-mono text-sm">Día</span>
-              <span className="text-4xl font-bold">{currentDay + 1}</span>
-              <span className="text-muted-foreground font-mono text-sm">
+              <span className="text-muted-foreground font-mono text-xs">Día</span>
+              <span className="text-2xl font-bold">{currentDay + 1}</span>
+              <span className="text-muted-foreground font-mono text-xs">
                 / {days.length}
               </span>
             </div>
@@ -57,54 +97,38 @@ export function ItinerarySection({
               size="icon"
               onClick={onNext}
               disabled={currentDay === days.length - 1}
-              className="rounded-full bg-transparent"
+              className="h-9 w-9 rounded-full bg-transparent"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
 
-          <div className="bg-muted relative mx-auto h-2 max-w-4xl overflow-hidden rounded-full">
+          {/* Thin progress bar */}
+          <div className="bg-muted relative h-1 overflow-hidden rounded-full">
             <div
               className="bg-accent absolute top-0 left-0 h-full rounded-full transition-all duration-500"
-              style={{ width: `${((currentDay + 1) / days.length) * 100}%` }}
+              style={{
+                width: `${((currentDay + 1) / days.length) * 100}%`,
+              }}
             />
           </div>
 
-          <div className="mx-auto mt-4 flex max-w-4xl justify-between">
-            {days.map((d, idx) => (
+          {/* Dots */}
+          <div className="mt-3 flex justify-between">
+            {days.map((day, index) => (
               <button
-                key={d.day}
-                onClick={() => onChangeDay(idx)}
-                className={`h-3 w-3 rounded-full transition-all ${
-                  idx === currentDay
-                    ? "bg-accent scale-150"
+                key={day.day}
+                onClick={() => onChangeDay(index)}
+                className={`h-2 w-2 rounded-full transition-all ${
+                  index === currentDay
+                    ? "bg-accent scale-125"
                     : "bg-muted hover:bg-muted-foreground"
                 }`}
-                aria-label={`Go to day ${d.day}`}
+                aria-label={`Go to day ${day.day}`}
+                type="button"
               />
             ))}
           </div>
-        </div>
-
-        <div className="mx-auto max-w-3xl">
-          <Card className="bg-card border-border animate-fade-in p-8 transition-all duration-500 md:p-12">
-            <div className="flex items-start gap-6">
-              <div className="text-6xl">{active.icon}</div>
-              <div className="flex-1">
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="text-muted-foreground font-mono text-sm">
-                    {active.date}
-                  </span>
-                  <span className="text-muted-foreground text-xs">•</span>
-                  <span className="text-accent font-mono text-sm">Día {active.day}</span>
-                </div>
-                <h3 className="mb-4 text-3xl font-bold">{active.location}</h3>
-                <p className="text-muted-foreground text-lg leading-relaxed">
-                  {active.description}
-                </p>
-              </div>
-            </div>
-          </Card>
         </div>
       </div>
     </section>
