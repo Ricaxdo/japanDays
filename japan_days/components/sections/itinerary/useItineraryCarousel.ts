@@ -1,108 +1,119 @@
 "use client";
 
-import { animate, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
+import { animate, useMotionValue, useReducedMotion } from "framer-motion";
 import * as React from "react";
-import { ITINERARY_LAYOUT } from "./itinerary.constants";
-import type { Day } from "./itinerary.types";
-import { clamp, swipePower } from "./itinerary.utils";
-
-type Params = {
-  days: Day[];
-  currentDay: number;
-  onChangeDay: (index: number) => void;
-  onPrev: () => void;
-  onNext: () => void;
-};
+import { ITINERARY } from "./itinerary.constants";
+import { clamp } from "./itinerary.utils";
 
 export function useItineraryCarousel({
-  days,
+  daysLength,
   currentDay,
   onChangeDay,
-  onPrev,
-  onNext,
-}: Params) {
+  gap = ITINERARY.GAP,
+}: {
+  daysLength: number;
+  currentDay: number;
+  onChangeDay: (index: number) => void;
+  gap?: number;
+}) {
   const prefersReducedMotion = useReducedMotion();
 
-  // ===== ancho dinámico del card central =====
-  const cardRef = React.useRef<HTMLDivElement | null>(null);
+  // --- measure card width (STEP)
   const [cardW, setCardW] = React.useState(860);
+  const [measureEl, setMeasureEl] = React.useState<HTMLDivElement | null>(null);
+
+  const measureRef = React.useCallback((node: HTMLDivElement | null) => {
+    setMeasureEl(node);
+  }, []);
 
   React.useEffect(() => {
-    if (!cardRef.current) return;
-    const el = cardRef.current;
+    if (!measureEl) return;
 
     const ro = new ResizeObserver(() => {
-      const w = el.getBoundingClientRect().width;
+      const w = measureEl.getBoundingClientRect().width;
       if (w > 0) setCardW(w);
     });
 
-    ro.observe(el);
+    ro.observe(measureEl);
+
+    const w0 = measureEl.getBoundingClientRect().width;
+    if (w0 > 0) setCardW(w0);
+
     return () => ro.disconnect();
+  }, [measureEl]);
+
+  const STEP = cardW + gap;
+
+  // --- measure viewport width (sidePad)
+  const [viewportW, setViewportW] = React.useState(1200);
+  const [viewportEl, setViewportEl] = React.useState<HTMLDivElement | null>(null);
+
+  const viewportRef = React.useCallback((node: HTMLDivElement | null) => {
+    setViewportEl(node);
   }, []);
 
-  const STEP = cardW + ITINERARY_LAYOUT.GAP;
+  React.useEffect(() => {
+    if (!viewportEl) return;
 
-  // ===== motion values =====
-  const x = useMotionValue(0);
-  const progress = useTransform(x, [-STEP, 0, STEP], [1, 0, -1]);
+    const ro = new ResizeObserver(() => {
+      const w = viewportEl.getBoundingClientRect().width;
+      if (w > 0) setViewportW(w);
+    });
 
-  // ===== indices =====
-  const prevIndex = currentDay - 1;
-  const nextIndex = currentDay + 1;
+    ro.observe(viewportEl);
 
-  const prevDay = prevIndex >= 0 ? days[prevIndex] : null;
-  const curDay = days[currentDay];
-  const nextDay = nextIndex < days.length ? days[nextIndex] : null;
+    const w0 = viewportEl.getBoundingClientRect().width;
+    if (w0 > 0) setViewportW(w0);
 
-  // ===== handlers =====
-  const animMs = prefersReducedMotion ? 0 : 0.28;
+    return () => ro.disconnect();
+  }, [viewportEl]);
+
+  const sidePad = Math.max(0, (viewportW - cardW) / 2);
+
+  // --- track motion value (absolute)
+  const trackX = useMotionValue(0);
+
+  React.useLayoutEffect(() => {
+    trackX.set(-currentDay * STEP);
+  }, [currentDay, STEP, trackX]);
+
+  const minX = -(daysLength - 1) * STEP;
+  const maxX = 0;
+
+  const animSec = prefersReducedMotion ? 0 : 0.28;
+
+  const animateToIndex = React.useCallback(
+    (target: number) => {
+      const clampedIndex = clamp(target, 0, daysLength - 1);
+
+      animate(trackX, -clampedIndex * STEP, {
+        duration: animSec,
+        ease: ITINERARY.BTN_EASE,
+        onComplete: () => onChangeDay(clampedIndex),
+      });
+    },
+    [STEP, animSec, daysLength, onChangeDay, trackX],
+  );
 
   const goNext = React.useCallback(() => {
-    if (currentDay >= days.length - 1) return;
-
-    animate(x, -STEP, {
-      duration: animMs,
-      ease: [0.22, 1, 0.36, 1],
-      onComplete: () => {
-        x.set(0);
-        onNext();
-      },
-    });
-  }, [currentDay, days.length, STEP, animMs, onNext, x]);
+    if (currentDay >= daysLength - 1) return;
+    animateToIndex(currentDay + 1);
+  }, [currentDay, daysLength, animateToIndex]);
 
   const goPrev = React.useCallback(() => {
     if (currentDay <= 0) return;
-
-    animate(x, STEP, {
-      duration: animMs,
-      ease: [0.22, 1, 0.36, 1],
-      onComplete: () => {
-        x.set(0);
-        onPrev();
-      },
-    });
-  }, [currentDay, STEP, animMs, onPrev, x]);
+    animateToIndex(currentDay - 1);
+  }, [currentDay, animateToIndex]);
 
   const goTo = React.useCallback(
     (index: number) => {
-      const target = clamp(index, 0, days.length - 1);
+      const target = clamp(index, 0, daysLength - 1);
       if (target === currentDay) return;
-
-      const dir = target > currentDay ? -1 : 1;
-
-      animate(x, dir * STEP, {
-        duration: animMs,
-        ease: [0.22, 1, 0.36, 1],
-        onComplete: () => {
-          x.set(0);
-          onChangeDay(target);
-        },
-      });
+      animateToIndex(target);
     },
-    [currentDay, days.length, STEP, animMs, onChangeDay, x],
+    [animateToIndex, currentDay, daysLength],
   );
 
-  // teclado
   React.useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") goPrev();
@@ -113,96 +124,26 @@ export function useItineraryCarousel({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [goPrev, goNext]);
 
-  // snap al soltar
-  const settleDrag = React.useCallback(
-    (offsetX: number, velocityX: number) => {
-      const swipe = swipePower(offsetX, velocityX);
-      const threshold = STEP * 0.18;
+  const settleDrag = React.useCallback(() => {
+    const rawIndex = -trackX.get() / STEP;
+    const target = clamp(Math.round(rawIndex), 0, daysLength - 1);
 
-      const shouldGoNext = offsetX < -threshold || swipe > 14000;
-      const shouldGoPrev = offsetX > threshold || swipe > 14000;
-
-      if (shouldGoNext && currentDay < days.length - 1) return goNext();
-      if (shouldGoPrev && currentDay > 0) return goPrev();
-
-      animate(x, 0, {
-        duration: prefersReducedMotion ? 0 : 0.22,
-        ease: [0.22, 1, 0.36, 1],
-      });
-    },
-    [STEP, currentDay, days.length, goNext, goPrev, prefersReducedMotion, x],
-  );
-
-  // ===== transforms “tiempo real” =====
-  const centerScale = useTransform(
-    progress,
-    [-1, 0, 1],
-    [
-      ITINERARY_LAYOUT.SIDE_SCALE,
-      ITINERARY_LAYOUT.CENTER_SCALE,
-      ITINERARY_LAYOUT.SIDE_SCALE,
-    ],
-  );
-  const centerOpacity = useTransform(progress, [-1, 0, 1], [0.9, 1, 0.9]);
-  const centerBlur = useTransform(progress, [-1, 0, 1], [3, 0, 3]);
-
-  const leftScale = useTransform(
-    progress,
-    [-1, 0, 1],
-    [0.88, ITINERARY_LAYOUT.SIDE_SCALE, ITINERARY_LAYOUT.CENTER_SCALE],
-  );
-  const leftOpacity = useTransform(
-    progress,
-    [-1, 0, 1],
-    [0.35, ITINERARY_LAYOUT.SIDE_OPACITY, 1],
-  );
-  const leftBlur = useTransform(progress, [-1, 0, 1], [6, 4, 0]);
-
-  const rightScale = useTransform(
-    progress,
-    [-1, 0, 1],
-    [ITINERARY_LAYOUT.CENTER_SCALE, ITINERARY_LAYOUT.SIDE_SCALE, 0.88],
-  );
-  const rightOpacity = useTransform(
-    progress,
-    [-1, 0, 1],
-    [1, ITINERARY_LAYOUT.SIDE_OPACITY, 0.35],
-  );
-  const rightBlur = useTransform(progress, [-1, 0, 1], [0, 4, 6]);
-
-  // filters para side cards (si quieres blur “preview”)
-  const leftFilter = useTransform(leftBlur, (b) => `blur(${b}px)`);
-  const rightFilter = useTransform(rightBlur, (b) => `blur(${b}px)`);
+    animate(trackX, -target * STEP, {
+      duration: prefersReducedMotion ? 0 : 0.22,
+      ease: ITINERARY.BTN_EASE,
+      onComplete: () => onChangeDay(target),
+    });
+  }, [STEP, daysLength, onChangeDay, prefersReducedMotion, trackX]);
 
   return {
     prefersReducedMotion,
-
-    // refs/layout
-    cardRef,
+    trackX,
     STEP,
-
-    // data
-    prevIndex,
-    nextIndex,
-    prevDay,
-    curDay,
-    nextDay,
-
-    // motion
-    x,
-    motion: {
-      centerScale,
-      centerOpacity,
-      centerBlur,
-      leftScale,
-      leftOpacity,
-      leftFilter,
-      rightScale,
-      rightOpacity,
-      rightFilter,
-    },
-
-    // handlers
+    minX,
+    maxX,
+    sidePad,
+    viewportRef,
+    measureRef,
     goPrev,
     goNext,
     goTo,

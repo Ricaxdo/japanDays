@@ -1,16 +1,21 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { motion, useTransform, type MotionValue } from "framer-motion";
+import { motion, useTransform } from "framer-motion";
 import type { Day } from "./itinerary.types";
 
-export function BigDayCard({ day, blurMv }: { day: Day; blurMv: MotionValue<number> }) {
-  // blur solo en capa decorativa, texto siempre crisp
-  const bgOpacity = useTransform(blurMv, [0, 6], [1, 0.65]);
+export function BigDayCard({
+  day,
+  blurMv,
+}: {
+  day: Day;
+  blurMv: import("framer-motion").MotionValue<number>;
+}) {
+  const bgOpacity = useTransform(blurMv, [0, 10], [1, 0.62]);
   const bgFilter = useTransform(blurMv, (b) => `blur(${b}px)`);
 
   return (
-    <Card className="bg-card border-border/70 relative overflow-hidden rounded-2xl p-10 shadow-sm md:p-14">
+    <Card className="bg-card border-border/70 relative overflow-hidden rounded-2xl p-0 shadow-sm md:p-14">
       <motion.div
         className="pointer-events-none absolute inset-0"
         style={{ opacity: bgOpacity, filter: bgFilter }}
@@ -41,13 +46,6 @@ export function BigDayCard({ day, blurMv }: { day: Day; blurMv: MotionValue<numb
             <p className="text-muted-foreground text-lg leading-relaxed text-pretty md:text-2xl">
               {day.description}
             </p>
-
-            <div className="border-border/50 mt-8 border-t pt-6">
-              <p className="text-muted-foreground text-sm italic">
-                Detalles adicionales: horarios, atracciones específicas y rutas
-                próximamente...
-              </p>
-            </div>
           </div>
         </div>
       </div>

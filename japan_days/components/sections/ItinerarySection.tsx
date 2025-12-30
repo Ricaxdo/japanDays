@@ -191,8 +191,7 @@ export function ItinerarySection({
               ref={viewportRef}
               className="relative my-0 overflow-hidden rounded-2xl py-0 select-none"
             >
-              {" "}
-              <div className="relative h-[460px] md:h-[540px]">
+              <div className="relative h-[400px] md:h-[420px]">
                 {/* TRACK draggable (ABSOLUTO) */}
                 <motion.div
                   className="absolute inset-0 flex cursor-grab items-center active:cursor-grabbing"

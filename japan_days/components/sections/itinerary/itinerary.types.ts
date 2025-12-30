@@ -10,6 +10,4 @@ export type ItinerarySectionProps = {
   days: Day[];
   currentDay: number;
   onChangeDay: (index: number) => void;
-  onPrev: () => void;
-  onNext: () => void;
 };

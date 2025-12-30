@@ -2,7 +2,7 @@
 
 import { DestinationsSection } from "@/components/sections/DestinationsSection";
 import { HeroSection } from "@/components/sections/HeroSection";
-import { ItinerarySection } from "@/components/sections/ItinerarySection";
+import { ItinerarySection } from "@/components/sections/itinerary/ItinerarySection";
 import { ProgressBar } from "@/components/sections/ProgressBar";
 import { ShinkansenSection } from "@/components/sections/ShinkansenSection";
 import { destinations, itineraryDays } from "@/data/japan";
@@ -70,7 +70,7 @@ export default function Page() {
 
   const getNavOffset = () => {
     const h = navRef.current?.getBoundingClientRect().height ?? 0;
-    return Math.ceil(h) + 4; // +4px buffer visual
+    return Math.ceil(h) + 4;
   };
 
   const scrollToId = (id: SectionId) => {
@@ -104,7 +104,6 @@ export default function Page() {
 
   useEffect(() => {
     const ids: SectionId[] = ["home", "itinerary", "shinkansen", "destinations"];
-
     const offset = getNavOffset();
 
     const observer = new IntersectionObserver(
@@ -138,7 +137,6 @@ export default function Page() {
       const activeBtn = btnRefs.current[activeSection];
       if (!container || !activeBtn) return;
 
-      // posición del botón relativa al contenedor
       const left = activeBtn.offsetLeft;
       const width = activeBtn.offsetWidth;
 
@@ -146,15 +144,9 @@ export default function Page() {
     };
 
     updateIndicator();
-
-    // si cambian tamaños (responsive), re-calcula
     window.addEventListener("resize", updateIndicator);
-
     return () => window.removeEventListener("resize", updateIndicator);
   }, [activeSection]);
-
-  const nextDay = () => setCurrentDay((d) => Math.min(d + 1, itineraryDays.length - 1));
-  const prevDay = () => setCurrentDay((d) => Math.max(d - 1, 0));
 
   const navBtn = (id: SectionId) =>
     `relative transition-colors hover:text-accent ${
@@ -243,8 +235,6 @@ export default function Page() {
         days={itineraryDays}
         currentDay={currentDay}
         onChangeDay={setCurrentDay}
-        onPrev={prevDay}
-        onNext={nextDay}
       />
 
       <ShinkansenSection />

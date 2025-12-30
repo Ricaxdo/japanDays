@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { MotionConfig, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { BigDayCard } from "./BigDayCard";
-import { SmallDayCard } from "./SmallDayCard";
-import { ITINERARY_LAYOUT } from "./itinerary.constants";
+
+import { CarouselItem } from "./CarouselItem";
+import { ITINERARY } from "./itinerary.constants";
 import type { ItinerarySectionProps } from "./itinerary.types";
 import { useItineraryCarousel } from "./useItineraryCarousel";
 
@@ -13,52 +13,34 @@ export function ItinerarySection({
   days,
   currentDay,
   onChangeDay,
-  onPrev,
-  onNext,
 }: ItinerarySectionProps) {
   const {
     prefersReducedMotion,
-    cardRef,
+    trackX,
     STEP,
-    prevIndex,
-    nextIndex,
-    prevDay,
-    curDay,
-    nextDay,
-    x,
-    motion: {
-      centerScale,
-      centerOpacity,
-      centerBlur,
-      leftScale,
-      leftOpacity,
-      leftFilter,
-      rightScale,
-      rightOpacity,
-      rightFilter,
-    },
+    minX,
+    maxX,
+    sidePad,
+    viewportRef,
+    measureRef,
     goPrev,
     goNext,
     goTo,
     settleDrag,
   } = useItineraryCarousel({
-    days,
+    daysLength: days.length,
     currentDay,
     onChangeDay,
-    onPrev,
-    onNext,
+    gap: ITINERARY.GAP,
   });
 
   return (
-    <section id="itinerary" className="min-h-screen px-6 py-14">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-10 text-center">
-          <h2 className="text-5xl font-bold text-balance md:text-6xl">
+    <section id="itinerary" className="min-h-screen px-6 py-5">
+      <div className="relative mx-auto">
+        <div className="text-center">
+          <h2 className="text-5xl font-bold text-balance md:text-3xl">
             Itinerario Día a Día
           </h2>
-          <p className="text-muted-foreground mx-auto mt-3 max-w-2xl text-base md:text-lg">
-            Arrastra el carrusel. Verás cómo las cards se transforman en tiempo real.
-          </p>
         </div>
 
         <MotionConfig
@@ -67,81 +49,55 @@ export function ItinerarySection({
             ease: [0.22, 1, 0.36, 1],
           }}
         >
-          <div className="relative mx-auto max-w-6xl">
+          <div className="relative overflow-hidden">
             {/* Fade edges */}
             <div className="from-background pointer-events-none absolute inset-y-0 left-0 z-20 w-16 bg-gradient-to-r to-transparent" />
             <div className="from-background pointer-events-none absolute inset-y-0 right-0 z-20 w-16 bg-gradient-to-l to-transparent" />
 
             {/* VIEWPORT */}
-            <div className="relative overflow-hidden rounded-2xl select-none">
-              <div className={`relative ${ITINERARY_LAYOUT.VIEW_H}`}>
-                {/* TRACK */}
+            <div
+              ref={viewportRef}
+              className="relative overflow-hidden rounded-2xl select-none"
+            >
+              <div
+                className={`relative h-[${ITINERARY.HEIGHT_MOBILE}px] md:h-[${ITINERARY.HEIGHT_DESKTOP}px]`}
+              >
                 <motion.div
-                  className="absolute inset-0 flex cursor-grab items-center justify-center active:cursor-grabbing"
+                  className="absolute inset-0 flex cursor-grab items-center active:cursor-grabbing"
                   drag="x"
-                  style={{ x }}
-                  dragConstraints={{ left: -STEP, right: STEP }}
-                  dragElastic={0.08}
-                  onDragEnd={(_, info) => settleDrag(info.offset.x, info.velocity.x)}
+                  style={{ x: trackX }}
+                  dragConstraints={{ left: minX, right: maxX }}
+                  dragElastic={ITINERARY.DRAG_ELASTIC}
+                  onDragEnd={settleDrag}
                 >
-                  <div className="relative flex items-center justify-center">
-                    {/* LEFT */}
-                    <motion.div
-                      className={ITINERARY_LAYOUT.SIDE_W}
-                      style={{
-                        scale: leftScale,
-                        opacity: leftOpacity,
-                        filter: leftFilter,
-                      }}
-                    >
-                      {prevDay ? (
-                        <SmallDayCard day={prevDay} onClick={() => goTo(prevIndex)} />
-                      ) : (
-                        <div className={ITINERARY_LAYOUT.SIDE_H_SPACER} />
-                      )}
-                    </motion.div>
-
-                    <div style={{ width: ITINERARY_LAYOUT.GAP }} />
-
-                    {/* CENTER */}
-                    <motion.div
-                      ref={cardRef}
-                      className={ITINERARY_LAYOUT.CENTER_W}
-                      style={{
-                        scale: centerScale,
-                        opacity: centerOpacity,
-                      }}
-                    >
-                      <BigDayCard day={curDay} blurMv={centerBlur} />
-                    </motion.div>
-
-                    <div style={{ width: ITINERARY_LAYOUT.GAP }} />
-
-                    {/* RIGHT */}
-                    <motion.div
-                      className={ITINERARY_LAYOUT.SIDE_W}
-                      style={{
-                        scale: rightScale,
-                        opacity: rightOpacity,
-                        filter: rightFilter,
-                      }}
-                    >
-                      {nextDay ? (
-                        <SmallDayCard day={nextDay} onClick={() => goTo(nextIndex)} />
-                      ) : (
-                        <div className={ITINERARY_LAYOUT.SIDE_H_SPACER} />
-                      )}
-                    </motion.div>
+                  <div
+                    className="flex items-center"
+                    style={{
+                      gap: ITINERARY.GAP,
+                      paddingLeft: sidePad,
+                      paddingRight: sidePad,
+                    }}
+                  >
+                    {days.map((d, i) => (
+                      <CarouselItem
+                        key={d.day}
+                        day={d}
+                        index={i}
+                        trackX={trackX}
+                        STEP={STEP}
+                        measureRef={i === currentDay ? measureRef : undefined}
+                        onClick={() => goTo(i)}
+                      />
+                    ))}
                   </div>
                 </motion.div>
 
-                {/* subtle background treatment */}
                 <div className="pointer-events-none absolute inset-0 [background-image:radial-gradient(hsl(var(--foreground))_1px,transparent_1px)] [background-size:22px_22px] opacity-[0.08]" />
               </div>
             </div>
 
             {/* Controls */}
-            <div className="mt-8 flex items-center justify-center gap-6">
+            <div className="flex items-center justify-center gap-6">
               <Button
                 variant="outline"
                 size="icon"
@@ -185,17 +141,17 @@ export function ItinerarySection({
                 />
               </div>
 
-              <div className="mt-3 flex justify-between">
-                {days.map((d, index) => (
+              <div className="flex justify-between">
+                {days.map((day, index) => (
                   <button
-                    key={d.day}
+                    key={day.day}
                     onClick={() => goTo(index)}
                     className={`h-2.5 w-2.5 rounded-full transition-all ${
                       index === currentDay
                         ? "bg-accent scale-125"
                         : "bg-muted hover:bg-muted-foreground"
                     }`}
-                    aria-label={`Go to day ${d.day}`}
+                    aria-label={`Go to day ${day.day}`}
                     type="button"
                   />
                 ))}
