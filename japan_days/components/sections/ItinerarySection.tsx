@@ -31,8 +31,6 @@ type Props = {
 
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 
-const swipePower = (offset: number, velocity: number) => Math.abs(offset) * velocity;
-
 export function ItinerarySection({
   days,
   currentDay,
@@ -43,93 +41,110 @@ export function ItinerarySection({
   const prefersReducedMotion = useReducedMotion();
 
   // ===== layout tuning =====
-  const GAP = 18;
-  const SIDE_SCALE = 0.92;
-  const CENTER_SCALE = 1;
-  const SIDE_OPACITY = 0.55;
+  const GAP = 0;
 
-  // ancho dinámico del card central (para snap perfecto)
-  const cardRef = React.useRef<HTMLDivElement | null>(null);
+  // Medición del ancho real de una card (para STEP perfecto)
   const [cardW, setCardW] = React.useState(860);
+  const [measureEl, setMeasureEl] = React.useState<HTMLDivElement | null>(null);
+
+  // callback-ref (evita problemas de refs/SSR y reattach fácil)
+  const cardRef = React.useCallback((node: HTMLDivElement | null) => {
+    setMeasureEl(node);
+  }, []);
 
   React.useEffect(() => {
-    if (!cardRef.current) return;
-    const el = cardRef.current;
+    if (!measureEl) return;
 
     const ro = new ResizeObserver(() => {
-      const w = el.getBoundingClientRect().width;
+      const w = measureEl.getBoundingClientRect().width;
       if (w > 0) setCardW(w);
     });
 
-    ro.observe(el);
+    ro.observe(measureEl);
+
+    // set inicial
+    const w0 = measureEl.getBoundingClientRect().width;
+    if (w0 > 0) setCardW(w0);
+
     return () => ro.disconnect();
-  }, []);
+  }, [measureEl]);
 
   const STEP = cardW + GAP;
 
-  // Motion value del track
-  const x = useMotionValue(0);
+  // Motion value ABSOLUTO del track (NO se resetea)
+  const trackX = useMotionValue(0);
 
-  // 0 centered; -STEP => next; +STEP => prev
-  const progress = useTransform(x, [-STEP, 0, STEP], [1, 0, -1]);
+  // Mantener track alineado cuando cambia el currentDay o el STEP (resize)
+  React.useLayoutEffect(() => {
+    trackX.set(-currentDay * STEP);
+  }, [currentDay, STEP, trackX]);
 
-  // indices visibles
-  const prevIndex = currentDay - 1;
-  const nextIndex = currentDay + 1;
+  // límites reales de arrastre en toda la lista
+  const minX = -(days.length - 1) * STEP; // último
+  const maxX = 0; // primero
 
-  const prevDay = prevIndex >= 0 ? days[prevIndex] : null;
-  const curDay = days[currentDay];
-  const nextDay = nextIndex < days.length ? days[nextIndex] : null;
+  const animSec = prefersReducedMotion ? 0 : 0.28;
 
-  // ===== handlers PRO (memo) =====
-  const animMs = prefersReducedMotion ? 0 : 0.28;
+  const animateToIndex = React.useCallback(
+    (target: number) => {
+      const clamped = clamp(target, 0, days.length - 1);
+
+      animate(trackX, -clamped * STEP, {
+        duration: animSec,
+        ease: [0.22, 1, 0.36, 1],
+        onComplete: () => {
+          onChangeDay(clamped); // ✅ SOLO esto
+        },
+      });
+    },
+    [STEP, animSec, days.length, onChangeDay, trackX],
+  );
+
+  const [viewportW, setViewportW] = React.useState(1200);
+  const [viewportEl, setViewportEl] = React.useState<HTMLDivElement | null>(null);
+
+  const viewportRef = React.useCallback((node: HTMLDivElement | null) => {
+    setViewportEl(node);
+  }, []);
+
+  React.useEffect(() => {
+    if (!viewportEl) return;
+
+    const ro = new ResizeObserver(() => {
+      const w = viewportEl.getBoundingClientRect().width;
+      if (w > 0) setViewportW(w);
+    });
+
+    ro.observe(viewportEl);
+
+    const w0 = viewportEl.getBoundingClientRect().width;
+    if (w0 > 0) setViewportW(w0);
+
+    return () => ro.disconnect();
+  }, [viewportEl]);
+
+  const sidePad = Math.max(0, (viewportW - cardW) / 2);
 
   const goNext = React.useCallback(() => {
     if (currentDay >= days.length - 1) return;
-
-    animate(x, -STEP, {
-      duration: animMs,
-      ease: [0.22, 1, 0.36, 1],
-      onComplete: () => {
-        x.set(0);
-        onNext();
-      },
-    });
-  }, [currentDay, days.length, STEP, animMs, onNext, x]);
+    animateToIndex(currentDay + 1);
+  }, [currentDay, days.length, animateToIndex]);
 
   const goPrev = React.useCallback(() => {
     if (currentDay <= 0) return;
-
-    animate(x, STEP, {
-      duration: animMs,
-      ease: [0.22, 1, 0.36, 1],
-      onComplete: () => {
-        x.set(0);
-        onPrev();
-      },
-    });
-  }, [currentDay, STEP, animMs, onPrev, x]);
+    animateToIndex(currentDay - 1);
+  }, [currentDay, animateToIndex]);
 
   const goTo = React.useCallback(
     (index: number) => {
       const target = clamp(index, 0, days.length - 1);
       if (target === currentDay) return;
-
-      const dir = target > currentDay ? -1 : 1;
-
-      animate(x, dir * STEP, {
-        duration: animMs,
-        ease: [0.22, 1, 0.36, 1],
-        onComplete: () => {
-          x.set(0);
-          onChangeDay(target);
-        },
-      });
+      animateToIndex(target);
     },
-    [currentDay, days.length, STEP, animMs, onChangeDay, x],
+    [animateToIndex, currentDay, days.length],
   );
 
-  // ⌨️ teclado (solo una suscripción estable)
+  // ⌨️ teclado
   React.useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") goPrev();
@@ -140,58 +155,24 @@ export function ItinerarySection({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [goPrev, goNext]);
 
-  // snap al soltar
-  const settleDrag = React.useCallback(
-    (offsetX: number, velocityX: number) => {
-      const swipe = swipePower(offsetX, velocityX);
-      const threshold = STEP * 0.18;
+  const settleDrag = React.useCallback(() => {
+    const rawIndex = -trackX.get() / STEP;
+    const target = clamp(Math.round(rawIndex), 0, days.length - 1);
 
-      const shouldGoNext = offsetX < -threshold || swipe > 14000;
-      const shouldGoPrev = offsetX > threshold || swipe > 14000;
-
-      if (shouldGoNext && currentDay < days.length - 1) return goNext();
-      if (shouldGoPrev && currentDay > 0) return goPrev();
-
-      animate(x, 0, {
-        duration: prefersReducedMotion ? 0 : 0.22,
-        ease: [0.22, 1, 0.36, 1],
-      });
-    },
-    [STEP, currentDay, days.length, goNext, goPrev, prefersReducedMotion, x],
-  );
-
-  // ===== transforms “tiempo real” =====
-  const centerScale = useTransform(
-    progress,
-    [-1, 0, 1],
-    [SIDE_SCALE, CENTER_SCALE, SIDE_SCALE],
-  );
-  const centerOpacity = useTransform(progress, [-1, 0, 1], [0.9, 1, 0.9]);
-  const centerBlur = useTransform(progress, [-1, 0, 1], [3, 0, 3]);
-
-  const leftScale = useTransform(progress, [-1, 0, 1], [0.88, SIDE_SCALE, CENTER_SCALE]);
-  const leftOpacity = useTransform(progress, [-1, 0, 1], [0.35, SIDE_OPACITY, 1]);
-  const leftBlur = useTransform(progress, [-1, 0, 1], [6, 4, 0]);
-
-  const rightScale = useTransform(progress, [-1, 0, 1], [CENTER_SCALE, SIDE_SCALE, 0.88]);
-  const rightOpacity = useTransform(progress, [-1, 0, 1], [1, SIDE_OPACITY, 0.35]);
-  const rightBlur = useTransform(progress, [-1, 0, 1], [0, 4, 6]);
-
-  // NOTE: filter necesita string
-  const centerFilter = useTransform(centerBlur, (b) => `blur(${b}px)`);
-  const leftFilter = useTransform(leftBlur, (b) => `blur(${b}px)`);
-  const rightFilter = useTransform(rightBlur, (b) => `blur(${b}px)`);
+    animate(trackX, -target * STEP, {
+      duration: prefersReducedMotion ? 0 : 0.22,
+      ease: [0.22, 1, 0.36, 1],
+      onComplete: () => onChangeDay(target), // ✅ SOLO esto
+    });
+  }, [STEP, days.length, onChangeDay, prefersReducedMotion, trackX]);
 
   return (
-    <section id="itinerary" className="min-h-screen px-6 py-14">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-10 text-center">
-          <h2 className="text-5xl font-bold text-balance md:text-6xl">
+    <section id="itinerary" className="min-h-screen px-6 py-5">
+      <div className="relative mx-auto">
+        <div className="text-center">
+          <h2 className="text-5xl font-bold text-balance md:text-3xl">
             Itinerario Día a Día
           </h2>
-          <p className="text-muted-foreground mx-auto mt-3 max-w-2xl text-base md:text-lg">
-            Arrastra el carrusel. Verás cómo las cards se transforman en tiempo real.
-          </p>
         </div>
 
         <MotionConfig
@@ -200,71 +181,48 @@ export function ItinerarySection({
             ease: [0.22, 1, 0.36, 1],
           }}
         >
-          <div className="relative mx-auto max-w-6xl">
+          <div className="relative my-0 overflow-hidden py-0">
             {/* Fade edges */}
-            <div className="from-background pointer-events-none absolute inset-y-0 left-0 z-20 w-16 bg-gradient-to-r to-transparent" />
-            <div className="from-background pointer-events-none absolute inset-y-0 right-0 z-20 w-16 bg-gradient-to-l to-transparent" />
+            <div className="from-background pointer-events-none absolute inset-y-0 left-0 z-20 my-0 w-16 bg-gradient-to-r to-transparent py-0" />
+            <div className="from-background pointer-events-none absolute inset-y-0 right-0 z-20 my-0 w-16 bg-gradient-to-l to-transparent py-0" />
 
             {/* VIEWPORT */}
-            <div className="relative overflow-hidden rounded-2xl select-none">
+            <div
+              ref={viewportRef}
+              className="relative my-0 overflow-hidden rounded-2xl py-0 select-none"
+            >
+              {" "}
               <div className="relative h-[460px] md:h-[540px]">
-                {/* TRACK draggable */}
+                {/* TRACK draggable (ABSOLUTO) */}
                 <motion.div
-                  className="absolute inset-0 flex cursor-grab items-center justify-center active:cursor-grabbing"
+                  className="absolute inset-0 flex cursor-grab items-center active:cursor-grabbing"
                   drag="x"
-                  style={{ x }}
-                  dragConstraints={{ left: -STEP, right: STEP }}
-                  dragElastic={0.08}
-                  onDragEnd={(_, info) => settleDrag(info.offset.x, info.velocity.x)}
+                  style={{ x: trackX }}
+                  dragConstraints={{ left: minX, right: maxX }}
+                  dragElastic={0.06}
+                  onDragEnd={settleDrag}
                 >
-                  <div className="relative flex items-center justify-center">
-                    {/* LEFT */}
-                    <motion.div
-                      className="w-[260px] md:w-[320px]"
-                      style={{
-                        scale: leftScale,
-                        opacity: leftOpacity,
-                        filter: leftFilter,
-                      }}
-                    >
-                      {prevDay ? (
-                        <SmallDayCard day={prevDay} onClick={() => goTo(prevIndex)} />
-                      ) : (
-                        <div className="h-[360px] md:h-[410px]" />
-                      )}
-                    </motion.div>
-
-                    <div style={{ width: GAP }} />
-
-                    {/* CENTER */}
-                    <motion.div
-                      ref={cardRef}
-                      className="w-[92vw] max-w-[920px] md:w-[860px]"
-                      style={{
-                        scale: centerScale,
-                        opacity: centerOpacity,
-                      }}
-                    >
-                      <BigDayCard day={curDay} blurMv={centerBlur} />
-                    </motion.div>
-
-                    <div style={{ width: GAP }} />
-
-                    {/* RIGHT */}
-                    <motion.div
-                      className="w-[260px] md:w-[320px]"
-                      style={{
-                        scale: rightScale,
-                        opacity: rightOpacity,
-                        filter: rightFilter,
-                      }}
-                    >
-                      {nextDay ? (
-                        <SmallDayCard day={nextDay} onClick={() => goTo(nextIndex)} />
-                      ) : (
-                        <div className="h-[360px] md:h-[410px]" />
-                      )}
-                    </motion.div>
+                  <div
+                    className="flex items-center"
+                    style={{
+                      gap: GAP,
+                      paddingLeft: sidePad,
+                      paddingRight: sidePad,
+                    }}
+                  >
+                    {" "}
+                    {days.map((d, i) => (
+                      <CarouselItem
+                        key={d.day}
+                        day={d}
+                        index={i}
+                        trackX={trackX}
+                        STEP={STEP}
+                        // medimos SIEMPRE la card actual (si cambia, se re-asigna el ref)
+                        measureRef={i === currentDay ? cardRef : undefined}
+                        onClick={() => goTo(i)}
+                      />
+                    ))}
                   </div>
                 </motion.div>
 
@@ -274,7 +232,7 @@ export function ItinerarySection({
             </div>
 
             {/* Controls */}
-            <div className="mt-8 flex items-center justify-center gap-6">
+            <div className="flex items-center justify-center gap-6">
               <Button
                 variant="outline"
                 size="icon"
@@ -318,7 +276,7 @@ export function ItinerarySection({
                 />
               </div>
 
-              <div className="mt-3 flex justify-between">
+              <div className="flex justify-between">
                 {days.map((day, index) => (
                   <button
                     key={day.day}
@@ -342,6 +300,51 @@ export function ItinerarySection({
 }
 
 /* =========================
+   Carousel Item (todas montadas)
+========================= */
+
+function CarouselItem({
+  day,
+  index,
+  trackX,
+  STEP,
+  measureRef,
+  onClick,
+}: {
+  day: Day;
+  index: number;
+  trackX: import("framer-motion").MotionValue<number>;
+  STEP: number;
+  measureRef?: (node: HTMLDivElement | null) => void;
+  onClick: () => void;
+}) {
+  // pos = 0 cuando esta card está centrada
+  const pos = useTransform(trackX, (x) => (index * STEP + x) / STEP);
+
+  // transformaciones suaves por distancia al centro
+  const scale = useTransform(pos, [-2, -1, 0, 1, 2], [0.82, 0.92, 1, 0.92, 0.82]);
+  const opacity = useTransform(pos, [-2, -1, 0, 1, 2], [0.25, 0.55, 1, 0.55, 0.25]);
+  const blur = useTransform(pos, [-2, -1, 0, 1, 2], [10, 5, 0, 5, 10]);
+  const filter = useTransform(blur, (b) => `blur(${b}px)`);
+
+  // opcional: reduce clicks “lejanos”
+  const pointerEvents = useTransform(pos, (p) => (Math.abs(p) <= 1.6 ? "auto" : "none"));
+
+  return (
+    <motion.div
+      ref={measureRef}
+      className="w-[80vw] max-w-[860px] shrink-0 md:w-[700px]"
+      style={{ scale, opacity, filter, pointerEvents }}
+    >
+      {/* Entra como “Big” cuando está al centro, y se siente “Small” por scale+blur */}
+      <button type="button" onClick={onClick} className="w-full text-left">
+        <BigDayCard day={day} blurMv={blur} />
+      </button>
+    </motion.div>
+  );
+}
+
+/* =========================
    Cards
 ========================= */
 
@@ -352,11 +355,12 @@ function BigDayCard({
   day: Day;
   blurMv: import("framer-motion").MotionValue<number>;
 }) {
-  const bgOpacity = useTransform(blurMv, [0, 6], [1, 0.65]);
+  // fondo con blur “separado”, texto crisp
+  const bgOpacity = useTransform(blurMv, [0, 10], [1, 0.62]);
   const bgFilter = useTransform(blurMv, (b) => `blur(${b}px)`);
 
   return (
-    <Card className="bg-card border-border/70 relative overflow-hidden rounded-2xl p-10 shadow-sm md:p-14">
+    <Card className="bg-card border-border/70 relative overflow-hidden rounded-2xl p-0 shadow-sm md:p-14">
       {/* ✅ capa de fondo/blurry, NO afecta al texto */}
       <motion.div
         className="pointer-events-none absolute inset-0"
@@ -390,42 +394,9 @@ function BigDayCard({
             <p className="text-muted-foreground text-lg leading-relaxed text-pretty md:text-2xl">
               {day.description}
             </p>
-
-            <div className="border-border/50 mt-8 border-t pt-6">
-              <p className="text-muted-foreground text-sm italic">
-                Detalles adicionales: horarios, atracciones específicas y rutas
-                próximamente...
-              </p>
-            </div>
           </div>
         </div>
       </div>
     </Card>
-  );
-}
-
-function SmallDayCard({ day, onClick }: { day: Day; onClick: () => void }) {
-  return (
-    <button type="button" onClick={onClick} className="w-full text-left">
-      <Card className="bg-card border-border/50 relative overflow-hidden rounded-2xl p-6 shadow-sm">
-        <div className="bg-background/35 pointer-events-none absolute inset-0 backdrop-blur-[3px]" />
-        <div className="relative flex items-start gap-4">
-          <div className="text-4xl">{day.icon}</div>
-          <div className="min-w-0">
-            <div className="text-muted-foreground font-mono text-xs">{day.date}</div>
-            <div className="mt-1 flex items-center gap-2">
-              <span className="text-muted-foreground text-xs">Día</span>
-              <span className="text-sm font-semibold">{day.day}</span>
-            </div>
-            <div className="mt-2 line-clamp-2 text-base font-semibold">
-              {day.location}
-            </div>
-            <div className="text-muted-foreground mt-1 line-clamp-2 text-sm">
-              {day.description}
-            </div>
-          </div>
-        </div>
-      </Card>
-    </button>
   );
 }
