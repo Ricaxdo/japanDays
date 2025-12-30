@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import * as React from "react";
 import { BigDayCard } from "./BigDayCard";
+import { DayDetailsDialog } from "./DayDetailsDialog";
 import type { Day } from "./itinerary.types";
 
-// MotionValue dummy (0) para BigDayCard
 const zeroMv = {
   get: () => 0,
   set: () => {},
@@ -25,17 +25,16 @@ export function ItineraryMobileSimple({
 }) {
   const scrollerRef = React.useRef<HTMLDivElement | null>(null);
 
+  const [open, setOpen] = React.useState(false);
+  const activeDay = days[currentDay];
+
   const scrollToIndex = React.useCallback((i: number) => {
     const scroller = scrollerRef.current;
     if (!scroller) return;
     const item = scroller.querySelector<HTMLElement>(`[data-idx="${i}"]`);
     if (!item) return;
 
-    item.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    });
+    item.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   }, []);
 
   const goPrev = () => {
@@ -50,7 +49,6 @@ export function ItineraryMobileSimple({
     scrollToIndex(next);
   };
 
-  // Detectar el item más centrado (simple y cheap)
   const onScroll = React.useCallback(() => {
     const scroller = scrollerRef.current;
     if (!scroller) return;
@@ -74,7 +72,6 @@ export function ItineraryMobileSimple({
     if (bestIdx !== currentDay) onChangeDay(bestIdx);
   }, [currentDay, onChangeDay]);
 
-  // Al entrar a mobile simple, centra el currentDay
   React.useEffect(() => {
     scrollToIndex(currentDay);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,6 +95,7 @@ export function ItineraryMobileSimple({
               onClick={() => {
                 onChangeDay(i);
                 scrollToIndex(i);
+                setOpen(true);
               }}
               className="w-full text-left"
             >
@@ -107,7 +105,7 @@ export function ItineraryMobileSimple({
         ))}
       </div>
 
-      {/* Controls (mismo estilo que ya traes) */}
+      {/* Controls */}
       <div className="flex items-center justify-center gap-6">
         <Button
           variant="outline"
@@ -136,7 +134,7 @@ export function ItineraryMobileSimple({
         </Button>
       </div>
 
-      {/* Progress (igual idea que tu barra) */}
+      {/* Progress */}
       <div className="mx-auto mt-5 max-w-4xl px-4">
         <div className="bg-muted relative h-1 overflow-hidden rounded-full">
           <div
@@ -152,6 +150,7 @@ export function ItineraryMobileSimple({
               onClick={() => {
                 onChangeDay(index);
                 scrollToIndex(index);
+                setOpen(true);
               }}
               className={`h-2.5 w-2.5 rounded-full transition-all ${
                 index === currentDay
@@ -164,6 +163,11 @@ export function ItineraryMobileSimple({
           ))}
         </div>
       </div>
+
+      {/* Modal (usa el día actual) */}
+      {activeDay && (
+        <DayDetailsDialog day={activeDay} open={open} onOpenChange={setOpen} />
+      )}
     </div>
   );
 }

@@ -83,6 +83,15 @@ section[id] {
   scroll-margin-top: var(--nav-offset);
 }
 
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
 @theme inline {
   /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
   --font-sans: "Geist", "Geist Fallback";
