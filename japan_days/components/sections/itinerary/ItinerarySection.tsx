@@ -31,7 +31,7 @@ function ItinerarySectionMobile({
   onChangeDay,
 }: ItinerarySectionProps) {
   return (
-    <section id="itinerary" className="min-h-screen px-6 py-5">
+    <section id="itinerary" className="mb-[-50px] min-h-screen px-6 pt-5">
       <div className="relative mx-auto">
         <div className="text-center">
           <h2 className="mt-5 text-5xl font-bold text-balance md:text-3xl">
