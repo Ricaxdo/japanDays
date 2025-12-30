@@ -31,7 +31,11 @@ function ItinerarySectionMobile({
   onChangeDay,
 }: ItinerarySectionProps) {
   return (
-    <section id="itinerary" className="min-h-[100dvh] px-6 pt-5">
+    <section
+      id="itinerary"
+      className="px-6 pt-5"
+      style={{ minHeight: "calc((var(--vh-fixed) * 100) - var(--nav-offset))" }}
+    >
       <div className="relative mx-auto">
         <div className="text-center">
           <h2 className="mt-5 text-5xl font-bold text-balance md:text-3xl">

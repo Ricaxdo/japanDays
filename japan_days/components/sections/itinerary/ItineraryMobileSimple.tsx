@@ -135,7 +135,7 @@ export function ItineraryMobileSimple({
       </div>
 
       {/* Progress */}
-      <div className="mx-auto mt-5 max-w-4xl px-4">
+      <div className="mx-auto my-5 max-w-4xl px-4">
         <div className="bg-muted relative h-1 overflow-hidden rounded-full">
           <div
             className="bg-accent absolute top-0 left-0 h-full rounded-full transition-[width] duration-300"

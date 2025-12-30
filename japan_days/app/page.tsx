@@ -52,6 +52,39 @@ export default function Page() {
     });
   };
 
+  useEffect(() => {
+    const setNavOffset = () => {
+      const h = navRef.current?.getBoundingClientRect().height ?? 72;
+      document.documentElement.style.setProperty("--nav-offset", `${h + 8}px`);
+    };
+
+    const setFixedVh = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh-fixed", `${vh}px`);
+    };
+
+    // ✅ Set initial values
+    setNavOffset();
+    setFixedVh();
+
+    // ✅ aseguramos altura final después del primer render/layout
+    requestAnimationFrame(() => {
+      setNavOffset();
+      setFixedVh();
+    });
+
+    // ✅ Nav puede cambiar en resize (desktop), vh fijo NO lo queremos recalcular en resize
+    window.addEventListener("resize", setNavOffset);
+
+    // ✅ vh fijo solo cambia si rota el dispositivo
+    window.addEventListener("orientationchange", setFixedVh);
+
+    return () => {
+      window.removeEventListener("resize", setNavOffset);
+      window.removeEventListener("orientationchange", setFixedVh);
+    };
+  }, []);
+
   return (
     <div className="bg-background text-foreground min-h-screen">
       <SakuraPetals className="fixed inset-0 z-10 opacity-40" />
