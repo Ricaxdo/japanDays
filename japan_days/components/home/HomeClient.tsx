@@ -201,10 +201,10 @@ export default function Page() {
         <div className="mx-auto max-w-7xl text-center">
           <div className="mb-4 flex items-center justify-center gap-2">
             <span className="text-3xl">🇯🇵</span>
-            <span className="font-mono text-lg">JAPAN 2025</span>
+            <span className="font-mono text-lg">JAPAN 2026</span>
           </div>
           <p className="text-muted-foreground text-sm">
-            28 de febrero — 13 de marzo, 2025
+            28 de febrero — 13 de marzo, 2026
           </p>
           <p className="text-muted-foreground mt-2 text-xs">
             Una aventura inolvidable por la tierra del sol naciente

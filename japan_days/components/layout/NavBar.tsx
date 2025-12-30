@@ -85,7 +85,7 @@ export function Navbar({ activeSection, onNavigate, navRef }: Props) {
         {/* Left */}
         <div className="flex items-center gap-2">
           <span className="text-2xl">🇯🇵</span>
-          <span className="font-mono text-sm tracking-wider">JAPAN 2025</span>
+          <span className="font-mono text-sm tracking-wider">JAPAN 2026</span>
         </div>
 
         {/* Desktop links */}
@@ -127,7 +127,7 @@ export function Navbar({ activeSection, onNavigate, navRef }: Props) {
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
                   <span>🇯🇵</span>
-                  <span className="font-mono text-sm tracking-wider">JAPAN 2025</span>
+                  <span className="font-mono text-sm tracking-wider">JAPAN 2026</span>
                 </SheetTitle>
               </SheetHeader>
 
