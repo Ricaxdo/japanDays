@@ -62,7 +62,7 @@ export function HeroSection({ onScrollToItinerary, onScrollToDestinations }: Pro
 
         {/* ✍️ Subheadline */}
         <p className="text-muted-foreground mx-auto mb-10 max-w-3xl text-base text-balance sm:mb-12 sm:text-lg md:text-2xl">
-          14 días de puro despapaye, sexo, drogas, y hentai
+          14 días de puro despapaye, drogas, y hentai
         </p>
 
         {/* 🔘 CTAs */}

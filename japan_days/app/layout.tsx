@@ -8,7 +8,7 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Viaje a Japón 2025 | Itinerario Digital",
+  title: "Japon 2026 | Itinerario",
   description:
     "14 días explorando Japón: de Tokio a Osaka, Kioto, Takayama, Shirakawa-go y el Monte Fuji. 28 Feb - 13 Mar 2025",
   generator: "v0.app",
