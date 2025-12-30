@@ -35,7 +35,7 @@ export default function Page() {
 
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <ProgressBar progress={scrollProgress} />
+      <ProgressBar />
 
       {/* Navbar (igual que antes, la puedes extraer luego si quieres) */}
       <nav className="bg-background/80 border-border fixed top-0 right-0 left-0 z-40 border-b backdrop-blur-md">
