@@ -1,5 +1,6 @@
 "use client";
 
+import { SakuraPetals } from "@/components/effects/SakuraPetals";
 import { Navbar, type SectionId } from "@/components/layout/NavBar";
 import { DestinationsSection } from "@/components/sections/DestinationsSection";
 import { HeroSection } from "@/components/sections/HeroSection";
@@ -34,14 +35,27 @@ export default function Page() {
 
     setActiveSection(id);
 
-    el.scrollIntoView({
+    const navOffset =
+      parseFloat(
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--nav-offset")
+          .replace("px", ""),
+      ) || 72;
+
+    const EXTRA_OFFSET = 10; // 👈 aquí los 5px extra
+
+    const y = el.getBoundingClientRect().top + window.scrollY - navOffset + EXTRA_OFFSET;
+
+    window.scrollTo({
+      top: y,
       behavior: "smooth",
-      block: "start",
     });
   };
 
   return (
     <div className="bg-background text-foreground min-h-screen">
+      <SakuraPetals className="fixed inset-0 z-10 opacity-40" />
+
       <ProgressBar />
 
       <Navbar navRef={navRef} activeSection={activeSection} onNavigate={scrollToId} />

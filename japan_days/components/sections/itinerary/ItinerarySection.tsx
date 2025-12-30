@@ -34,7 +34,7 @@ function ItinerarySectionMobile({
     <section id="itinerary" className="min-h-screen px-6 py-5">
       <div className="relative mx-auto">
         <div className="text-center">
-          <h2 className="text-5xl font-bold text-balance md:text-3xl">
+          <h2 className="mt-5 text-5xl font-bold text-balance md:text-3xl">
             Itinerario Día a Día
           </h2>
         </div>
@@ -83,7 +83,7 @@ function ItinerarySectionDesktop({
     <section id="itinerary" className="min-h-screen px-6 py-5">
       <div className="relative mx-auto">
         <div className="text-center">
-          <h2 className="text-5xl font-bold text-balance md:text-3xl">
+          <h2 className="mt-5 text-5xl font-bold text-balance md:text-3xl">
             Itinerario Día a Día
           </h2>
         </div>

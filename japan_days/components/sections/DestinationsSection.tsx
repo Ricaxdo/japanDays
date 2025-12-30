@@ -6,9 +6,9 @@ type Props = { destinations: Destination[] };
 
 export function DestinationsSection({ destinations }: Props) {
   return (
-    <section id="destinations" className="px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
+    <section id="destinations" className="px-4 py-10 sm:px-6 sm:py-10 lg:py-10">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-10 text-center sm:mb-14 lg:mb-16">
+        <div className="mb-5 text-center sm:mb-5 lg:mb-5">
           <h2 className="mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">Destinos</h2>
           <p className="text-muted-foreground mx-auto max-w-2xl text-base text-balance sm:text-lg">
             Las ciudades y lugares que visitaremos en nuestra aventura

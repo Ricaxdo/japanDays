@@ -4,75 +4,88 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --nav-offset: 80px; /* default */
-  --background: oklch(0.98 0.005 264);
-  --foreground: oklch(0.15 0.01 264);
-  --card: oklch(0.96 0.005 264);
-  --card-foreground: oklch(0.15 0.01 264);
-  --popover: oklch(0.96 0.005 264);
-  --popover-foreground: oklch(0.15 0.01 264);
-  --primary: oklch(0.28 0.02 264);
-  --primary-foreground: oklch(0.98 0.005 264);
-  --secondary: oklch(0.92 0.005 264);
-  --secondary-foreground: oklch(0.28 0.02 264);
-  --muted: oklch(0.94 0.005 264);
-  --muted-foreground: oklch(0.5 0.01 264);
-  --accent: oklch(0.55 0.18 15);
-  --accent-foreground: oklch(0.98 0.005 264);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.98 0.005 264);
-  --border: oklch(0.88 0.005 264);
-  --input: oklch(0.88 0.005 264);
-  --ring: oklch(0.65 0.01 264);
-  --chart-1: oklch(0.55 0.18 15);
-  --chart-2: oklch(0.45 0.15 200);
-  --chart-3: oklch(0.6 0.12 280);
-  --chart-4: oklch(0.5 0.16 350);
-  --chart-5: oklch(0.65 0.14 120);
+  --nav-offset: 80px;
+
+  /* Base */
+  --background: oklch(0.985 0.004 270);
+  --foreground: oklch(0.15 0.01 270);
+
+  --card: oklch(0.97 0.004 270);
+  --card-foreground: oklch(0.15 0.01 270);
+
+  --popover: oklch(0.97 0.004 270);
+  --popover-foreground: oklch(0.15 0.01 270);
+
+  /* 🌸 Sakura primary */
+  --primary: oklch(0.68 0.17 10);
+  --primary-foreground: oklch(0.99 0.005 270);
+
+  /* Soft surfaces */
+  --secondary: oklch(0.94 0.006 270);
+  --secondary-foreground: oklch(0.28 0.02 270);
+
+  --muted: oklch(0.95 0.006 270);
+  --muted-foreground: oklch(0.52 0.02 270);
+
+  /* 🌸 Accent (más vibrante sakura) */
+  --accent: oklch(0.72 0.2 12);
+  --accent-foreground: oklch(0.99 0.005 270);
+
+  /* Keep destructive red */
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.99 0.005 270);
+
+  --border: oklch(0.88 0.01 270);
+  --input: oklch(0.88 0.01 270);
+  --ring: oklch(0.72 0.12 10);
+
+  /* Charts */
+  --chart-1: oklch(0.72 0.2 12); /* sakura */
+  --chart-2: oklch(0.55 0.14 280); /* night violet */
+  --chart-3: oklch(0.6 0.12 220); /* tokyo blue */
+  --chart-4: oklch(0.65 0.18 350); /* neon pink */
+  --chart-5: oklch(0.7 0.14 120); /* matcha accent */
+
   --radius: 0.75rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
-  --background: oklch(0.12 0.01 264);
-  --foreground: oklch(0.96 0.005 264);
-  --card: oklch(0.16 0.01 264);
-  --card-foreground: oklch(0.96 0.005 264);
-  --popover: oklch(0.16 0.01 264);
-  --popover-foreground: oklch(0.96 0.005 264);
-  --primary: oklch(0.96 0.005 264);
-  --primary-foreground: oklch(0.16 0.01 264);
-  --secondary: oklch(0.22 0.01 264);
-  --secondary-foreground: oklch(0.96 0.005 264);
-  --muted: oklch(0.2 0.01 264);
-  --muted-foreground: oklch(0.6 0.01 264);
-  --accent: oklch(0.7 0.18 15);
-  --accent-foreground: oklch(0.12 0.01 264);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.96 0.005 264);
-  --border: oklch(0.24 0.01 264);
-  --input: oklch(0.24 0.01 264);
-  --ring: oklch(0.45 0.01 264);
-  --chart-1: oklch(0.7 0.18 15);
-  --chart-2: oklch(0.6 0.15 200);
-  --chart-3: oklch(0.75 0.12 280);
-  --chart-4: oklch(0.65 0.16 350);
+  --background: oklch(0.12 0.01 270);
+  --foreground: oklch(0.96 0.005 270);
+
+  --card: oklch(0.16 0.015 270);
+  --card-foreground: oklch(0.96 0.005 270);
+
+  --popover: oklch(0.16 0.015 270);
+  --popover-foreground: oklch(0.96 0.005 270);
+
+  /* 🌸 Sakura glowing in dark */
+  --primary: oklch(0.75 0.2 12);
+  --primary-foreground: oklch(0.14 0.01 270);
+
+  --secondary: oklch(0.22 0.015 270);
+  --secondary-foreground: oklch(0.96 0.005 270);
+
+  --muted: oklch(0.2 0.015 270);
+  --muted-foreground: oklch(0.6 0.02 270);
+
+  /* 🌸 Accent brighter for night */
+  --accent: oklch(0.78 0.22 12);
+  --accent-foreground: oklch(0.14 0.01 270);
+
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.96 0.005 270);
+
+  --border: oklch(0.26 0.015 270);
+  --input: oklch(0.26 0.015 270);
+  --ring: oklch(0.78 0.18 12);
+
+  /* Charts */
+  --chart-1: oklch(0.78 0.22 12); /* sakura neon */
+  --chart-2: oklch(0.65 0.16 280);
+  --chart-3: oklch(0.7 0.14 220);
+  --chart-4: oklch(0.7 0.18 350);
   --chart-5: oklch(0.75 0.14 120);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
 }
 
 html {
@@ -90,6 +103,54 @@ section[id] {
 
 .no-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
+}
+
+.bg-sakura-glow {
+  background: radial-gradient(
+    circle at center,
+    oklch(0.78 0.22 12 / 0.35),
+    transparent 70%
+  );
+}
+
+/* 🌸 Sakura petals (subtle, not kitsch) */
+.sakura-petal {
+  position: absolute;
+  top: -10%;
+  border-radius: 999px 999px 999px 999px;
+  transform: translate3d(0, 0, 0);
+  background: radial-gradient(
+    circle at 30% 30%,
+    hsl(var(--primary) / 0.95),
+    hsl(var(--accent) / 0.65) 55%,
+    transparent 70%
+  );
+  filter: blur(0.2px);
+  will-change: transform;
+  animation-name: sakura-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes sakura-fall {
+  0% {
+    transform: translate3d(0, -20vh, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(var(--drift), 120vh, 0) rotate(var(--rot));
+  }
+}
+
+/* 🌙 Smooth theme transition (short + elegant) */
+.theme-transition,
+.theme-transition * {
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease,
+    fill 220ms ease,
+    stroke 220ms ease;
 }
 
 @theme inline {

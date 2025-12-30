@@ -17,7 +17,7 @@ export function ShinkansenSection() {
   return (
     <section
       id="shinkansen"
-      className="bg-muted/30 relative overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:py-24"
+      className="bg-muted/30 relative overflow-hidden px-4 py-10 sm:px-6 sm:py-10 lg:py-10"
     >
       {/* Decorative background */}
       <div className="absolute inset-0 overflow-hidden opacity-50" aria-hidden="true">
@@ -26,7 +26,7 @@ export function ShinkansenSection() {
       </div>
 
       <div className="relative mx-auto max-w-7xl">
-        <div className="mb-10 text-center sm:mb-14 lg:mb-16">
+        <div className="mb-3 text-center sm:mb-5 lg:mb-5">
           <div className="border-accent/20 bg-accent/10 mb-6 inline-flex items-center gap-3 rounded-full border px-5 py-2.5 backdrop-blur-sm">
             <Train className="text-accent h-5 w-5 sm:h-6 sm:w-6" />
             <span className="text-accent text-xs font-semibold tracking-wider uppercase sm:text-sm">

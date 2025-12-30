@@ -12,6 +12,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
+
 export type SectionId = "home" | "itinerary" | "shinkansen" | "destinations";
 
 type Indicator = { left: number; width: number };
@@ -39,7 +41,10 @@ export function Navbar({ activeSection, onNavigate, navRef }: Props) {
     destinations: null,
   });
 
-  const [indicator, setIndicator] = React.useState<Indicator>({ left: 0, width: 0 });
+  const [indicator, setIndicator] = React.useState<Indicator>({
+    left: 0,
+    width: 0,
+  });
 
   // Mobile sheet open/close
   const [open, setOpen] = React.useState(false);
@@ -62,9 +67,11 @@ export function Navbar({ activeSection, onNavigate, navRef }: Props) {
   }, [activeSection]);
 
   const navBtn = (id: SectionId) =>
-    `relative transition-colors hover:text-accent ${
-      activeSection === id ? "text-foreground" : "text-muted-foreground"
-    }`;
+    [
+      "relative rounded-full px-2.5 py-1.5 text-sm font-medium transition-colors",
+      "hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+      activeSection === id ? "text-foreground" : "text-muted-foreground",
+    ].join(" ");
 
   const handleNavigate = (id: SectionId) => {
     // ✅ en mobile: cerramos sheet primero para que no “pelee” con el scroll
@@ -79,51 +86,92 @@ export function Navbar({ activeSection, onNavigate, navRef }: Props) {
   return (
     <nav
       ref={navRef}
-      className="bg-background/80 border-border fixed top-0 right-0 left-0 z-40 border-b backdrop-blur-md"
+      className={[
+        "fixed top-0 right-0 left-0 z-40",
+        // ✅ glass
+        "border-border/50 bg-background/35 border-b backdrop-blur-xl",
+        // ✅ suavecita sombra
+        "shadow-[0_1px_0_0_hsl(var(--border)/0.25)]",
+        // ✅ soporte extra blur en Safari (opcional)
+        "[backdrop-filter:blur(16px)]",
+      ].join(" ")}
     >
+      {/* top glow */}
+      <div
+        aria-hidden="true"
+        className="from-accent/10 via-accent/5 pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b to-transparent"
+      />
+
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         {/* Left */}
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🇯🇵</span>
-          <span className="font-mono text-sm tracking-wider">JAPAN 2026</span>
+        <button
+          type="button"
+          onClick={() => onNavigate("home")}
+          className="group hover:bg-accent/5 flex items-center gap-2 rounded-full px-2 py-1 transition-colors"
+        >
+          <span className="text-foreground/90 group-hover:text-foreground font-mono text-sm tracking-wider">
+            JAPAN 2026
+          </span>
+        </button>
+
+        {/* Desktop links (glass pill) */}
+        <div className="hidden md:flex">
+          <div
+            ref={navLinksRef}
+            className={[
+              "relative flex items-center gap-1",
+              "border-border/60 bg-card/30 rounded-full border px-2 py-1.5",
+              "shadow-sm backdrop-blur-xl",
+            ].join(" ")}
+          >
+            {/* Indicator: pill sliding */}
+            <span
+              aria-hidden="true"
+              className="bg-accent/15 ring-accent/20 absolute inset-y-1 rounded-full ring-1 transition-all duration-300 ease-out"
+              style={{
+                width: `${indicator.width}px`,
+                transform: `translateX(${indicator.left - 8}px)`,
+              }}
+            />
+
+            {LINKS.map((l) => (
+              <button
+                key={l.id}
+                ref={(el) => {
+                  btnRefs.current[l.id] = el;
+                }}
+                onClick={() => onNavigate(l.id)}
+                className={navBtn(l.id)}
+                type="button"
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Desktop links */}
-        <div ref={navLinksRef} className="relative hidden gap-8 text-sm md:flex">
-          <span
-            aria-hidden="true"
-            className="bg-accent absolute -bottom-2 h-[2px] rounded-full transition-all duration-300 ease-out"
-            style={{
-              width: `${indicator.width}px`,
-              transform: `translateX(${indicator.left}px)`,
-            }}
-          />
-
-          {LINKS.map((l) => (
-            <button
-              key={l.id}
-              ref={(el) => {
-                btnRefs.current[l.id] = el;
-              }}
-              onClick={() => onNavigate(l.id)}
-              className={navBtn(l.id)}
-              type="button"
-            >
-              {l.label}
-            </button>
-          ))}
+        <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
         </div>
 
         {/* Mobile menu */}
         <div className="md:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Abrir menú">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Abrir menú"
+                className="border-border/50 bg-card/20 rounded-full border backdrop-blur-xl"
+              >
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
 
-            <SheetContent side="right" className="w-[280px] sm:w-[320px]">
+            <SheetContent
+              side="right"
+              className="bg-background/70 w-[280px] backdrop-blur-xl sm:w-[320px]"
+            >
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
                   <span>🇯🇵</span>
@@ -141,14 +189,17 @@ export function Navbar({ activeSection, onNavigate, navRef }: Props) {
                       type="button"
                       onClick={() => handleNavigate(l.id)}
                       className={[
-                        "flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left text-sm transition-colors",
+                        "flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition-all",
+                        "bg-card/30 backdrop-blur-md",
                         isActive
-                          ? "border-accent/40 bg-accent/10 text-foreground"
-                          : "border-border bg-card hover:bg-accent/5 text-muted-foreground hover:text-foreground",
+                          ? "border-accent/40 bg-accent/10 text-foreground shadow-sm"
+                          : "border-border/60 text-muted-foreground hover:text-foreground hover:bg-accent/5",
                       ].join(" ")}
                     >
                       <span>{l.label}</span>
-                      {isActive ? <span className="text-xs">Activo</span> : null}
+                      {isActive ? (
+                        <span className="text-accent text-xs font-semibold">Activo</span>
+                      ) : null}
                     </button>
                   );
                 })}
