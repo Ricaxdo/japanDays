@@ -28,7 +28,7 @@ export const itineraryDays: Day[] = [
         {
           time: "Tarde",
           title: "Llegada + migración + retiro de equipaje",
-          note: "Tomen agua, compren SIM/eSIM si hace falta.",
+          note: "Echarse un baño, comprar eSim/SUICA, visitar la tienda de pokemon.",
           tag: "move",
         },
         {
@@ -50,10 +50,7 @@ export const itineraryDays: Day[] = [
           tag: "food",
         },
       ],
-      tips: [
-        "Primer día: suave, no sobre-planear.",
-        "Dejen listo efectivo + IC Card para mañana.",
-      ],
+      tips: ["Primer día: suave, no sobre-planear.", "Cambiar algo de dinero a yenes."],
     },
   },
   {

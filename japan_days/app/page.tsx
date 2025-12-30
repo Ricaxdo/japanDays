@@ -16,17 +16,47 @@ export default function Page() {
 
   const navRef = useRef<HTMLElement | null>(null);
 
+  // ✅ 1) Evita que el browser/Next restaure el scroll + fuerza top al montar
   useEffect(() => {
-    const setVar = () => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, []);
+
+  // ✅ 2) Variables CSS: nav offset (dinámico) + vh fijo (solo orientación)
+  useEffect(() => {
+    const setNavOffset = () => {
       const h = navRef.current?.getBoundingClientRect().height ?? 72;
       document.documentElement.style.setProperty("--nav-offset", `${h + 8}px`);
     };
 
-    setVar();
-    requestAnimationFrame(setVar); // 👈 asegura altura final
+    const setFixedVh = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh-fixed", `${vh}px`);
+    };
 
-    window.addEventListener("resize", setVar);
-    return () => window.removeEventListener("resize", setVar);
+    // Inicial
+    setNavOffset();
+    setFixedVh();
+
+    // Asegura medición tras layout/fonts
+    requestAnimationFrame(() => {
+      setNavOffset();
+      setFixedVh();
+    });
+
+    // Observa cambios reales del navbar (más estable que resize)
+    const ro = new ResizeObserver(() => setNavOffset());
+    if (navRef.current) ro.observe(navRef.current);
+
+    // vh fijo solo cambia si rota
+    window.addEventListener("orientationchange", setFixedVh);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("orientationchange", setFixedVh);
+    };
   }, []);
 
   const scrollToId = (id: SectionId) => {
@@ -42,7 +72,7 @@ export default function Page() {
           .replace("px", ""),
       ) || 72;
 
-    const EXTRA_OFFSET = 10; // 👈 aquí los 5px extra
+    const EXTRA_OFFSET = 10;
 
     const y = el.getBoundingClientRect().top + window.scrollY - navOffset + EXTRA_OFFSET;
 
@@ -51,39 +81,6 @@ export default function Page() {
       behavior: "smooth",
     });
   };
-
-  useEffect(() => {
-    const setNavOffset = () => {
-      const h = navRef.current?.getBoundingClientRect().height ?? 72;
-      document.documentElement.style.setProperty("--nav-offset", `${h + 8}px`);
-    };
-
-    const setFixedVh = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty("--vh-fixed", `${vh}px`);
-    };
-
-    // ✅ Set initial values
-    setNavOffset();
-    setFixedVh();
-
-    // ✅ aseguramos altura final después del primer render/layout
-    requestAnimationFrame(() => {
-      setNavOffset();
-      setFixedVh();
-    });
-
-    // ✅ Nav puede cambiar en resize (desktop), vh fijo NO lo queremos recalcular en resize
-    window.addEventListener("resize", setNavOffset);
-
-    // ✅ vh fijo solo cambia si rota el dispositivo
-    window.addEventListener("orientationchange", setFixedVh);
-
-    return () => {
-      window.removeEventListener("resize", setNavOffset);
-      window.removeEventListener("orientationchange", setFixedVh);
-    };
-  }, []);
 
   return (
     <div className="bg-background text-foreground min-h-screen">
