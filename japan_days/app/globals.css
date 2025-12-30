@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --nav-offset: 80px; /* default */
   --background: oklch(0.98 0.005 264);
   --foreground: oklch(0.15 0.01 264);
   --card: oklch(0.96 0.005 264);
@@ -76,6 +77,10 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: var(--nav-offset);
 }
 
 @theme inline {

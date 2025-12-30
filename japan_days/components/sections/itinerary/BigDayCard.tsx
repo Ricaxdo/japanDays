@@ -15,7 +15,7 @@ export function BigDayCard({
   const bgFilter = useTransform(blurMv, (b) => `blur(${b}px)`);
 
   return (
-    <Card className="bg-card border-border/70 relative overflow-hidden rounded-2xl p-0 shadow-sm md:p-14">
+    <Card className="bg-card border-border/70 relative overflow-hidden rounded-2xl p-6 shadow-sm md:p-14">
       <motion.div
         className="pointer-events-none absolute inset-0"
         style={{ opacity: bgOpacity, filter: bgFilter }}
@@ -25,11 +25,11 @@ export function BigDayCard({
       </motion.div>
 
       <div className="relative z-10">
-        <div className="flex flex-col gap-8 md:flex-row md:items-start">
-          <div className="text-7xl md:text-8xl">{day.icon}</div>
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:gap-8">
+          <div className="text-6xl md:text-8xl">{day.icon}</div>
 
           <div className="w-full flex-1">
-            <div className="mb-6 flex flex-wrap items-center gap-3">
+            <div className="mb-4 flex flex-wrap items-center gap-3 md:mb-6">
               <span className="text-muted-foreground font-mono text-sm md:text-base">
                 {day.date}
               </span>
@@ -39,11 +39,11 @@ export function BigDayCard({
               </span>
             </div>
 
-            <h3 className="mb-5 text-4xl font-bold text-balance md:text-5xl">
+            <h3 className="mb-4 text-3xl font-bold text-balance md:mb-5 md:text-5xl">
               {day.location}
             </h3>
 
-            <p className="text-muted-foreground text-lg leading-relaxed text-pretty md:text-2xl">
+            <p className="text-muted-foreground text-base leading-relaxed md:text-2xl">
               {day.description}
             </p>
           </div>

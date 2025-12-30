@@ -6,22 +6,22 @@ type Props = { destinations: Destination[] };
 
 export function DestinationsSection({ destinations }: Props) {
   return (
-    <section id="destinations" className="px-6 py-24">
+    <section id="destinations" className="px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 text-5xl font-bold">Destinos</h2>
-          <p className="text-muted-foreground text-lg text-balance">
+        <div className="mb-10 text-center sm:mb-14 lg:mb-16">
+          <h2 className="mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">Destinos</h2>
+          <p className="text-muted-foreground mx-auto max-w-2xl text-base text-balance sm:text-lg">
             Las ciudades y lugares que visitaremos en nuestra aventura
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
           {destinations.map((d) => (
             <Card
               key={d.city}
               className="group bg-card border-border hover:border-accent overflow-hidden transition-all duration-300"
             >
-              <div className="relative h-56 overflow-hidden">
+              <div className="relative h-48 overflow-hidden sm:h-56">
                 <Image
                   src={d.image || "/placeholder.svg"}
                   alt={d.city}
@@ -32,8 +32,8 @@ export function DestinationsSection({ destinations }: Props) {
                 <div className="from-background absolute inset-0 bg-gradient-to-t to-transparent opacity-60" />
               </div>
 
-              <div className="p-6">
-                <h3 className="mb-2 text-2xl font-bold">{d.city}</h3>
+              <div className="p-5 sm:p-6">
+                <h3 className="mb-2 text-xl font-bold sm:text-2xl">{d.city}</h3>
                 <p className="text-muted-foreground mb-4 text-sm leading-relaxed">
                   {d.description}
                 </p>
