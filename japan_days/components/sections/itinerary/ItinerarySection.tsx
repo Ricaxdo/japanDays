@@ -33,7 +33,7 @@ function ItinerarySectionMobile({
   return (
     <section
       id="itinerary"
-      className="px-6 pt-5"
+      className="mb-[-80px] px-6 pt-5"
       style={{ minHeight: "calc((var(--vh-fixed) * 100) - var(--nav-offset))" }}
     >
       <div className="relative mx-auto">
