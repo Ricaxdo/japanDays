@@ -7,15 +7,23 @@ import type { Day } from "./itinerary.types";
 export function BigDayCard({
   day,
   blurMv,
+  className = "",
 }: {
   day: Day;
   blurMv: import("framer-motion").MotionValue<number>;
+  className?: string;
 }) {
   const bgOpacity = useTransform(blurMv, [0, 10], [1, 0.62]);
   const bgFilter = useTransform(blurMv, (b) => `blur(${b}px)`);
 
   return (
-    <Card className="bg-card border-border/70 relative overflow-hidden rounded-2xl p-6 shadow-sm md:p-14">
+    <Card
+      className={[
+        "bg-card border-border/70 relative overflow-hidden rounded-2xl shadow-sm",
+        "p-6 md:p-14",
+        className,
+      ].join(" ")}
+    >
       <motion.div
         className="pointer-events-none absolute inset-0"
         style={{ opacity: bgOpacity, filter: bgFilter }}
@@ -24,9 +32,9 @@ export function BigDayCard({
         <div className="bg-accent/20 absolute -top-20 right-10 h-52 w-52 rounded-full blur-3xl" />
       </motion.div>
 
-      <div className="relative z-10">
-        <div className="flex flex-col gap-6 md:flex-row md:items-start md:gap-8">
-          <div className="text-6xl md:text-8xl">{day.icon}</div>
+      <div className="allign-center relative z-10 flex h-full w-full flex-col justify-center">
+        <div className="align-center flex flex-col gap-6 md:flex-row md:items-start md:gap-8">
+          <div className="ml-[-15px] text-6xl md:text-8xl">{day.icon}</div>
 
           <div className="w-full flex-1">
             <div className="mb-4 flex flex-wrap items-center gap-3 md:mb-6">
@@ -43,7 +51,8 @@ export function BigDayCard({
               {day.location}
             </h3>
 
-            <p className="text-muted-foreground text-base leading-relaxed md:text-2xl">
+            {/* ✅ clamp para que no rompa la altura */}
+            <p className="text-muted-foreground line-clamp-4 text-base leading-relaxed md:line-clamp-3 md:text-2xl">
               {day.description}
             </p>
           </div>

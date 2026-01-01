@@ -99,7 +99,7 @@ export function ItineraryMobileSimple({
               }}
               className="w-full text-left"
             >
-              <BigDayCard day={d} blurMv={zeroMv} />
+              <BigDayCard day={d} blurMv={zeroMv} className="h-[380px]" />
             </button>
           </div>
         ))}

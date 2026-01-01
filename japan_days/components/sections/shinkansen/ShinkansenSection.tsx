@@ -1,3 +1,5 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
 import {
   AlertTriangle,
@@ -8,12 +10,73 @@ import {
   TrendingDown,
 } from "lucide-react";
 
-const JR_PASS_14 = 47250;
-const INDIVIDUAL_BASE = 38000;
+import {
+  TrainBreakdownDialog,
+  type LineItem,
+} from "@/components/sections/shinkansen/TrainBreakdownDialog";
+
+/* =========================
+   DATA / CONSTANTS
+========================= */
+
+const JR_PASS_7 = 50000;
+
+const TOKYO_OSAKA = 13800;
+const OSAKA_KYOTO = 580;
+const KYOTO_TAKAYAMA = 7000;
+const KANAZAWA_TOKYO = 14000;
+const TOKYO_NAGANO_RT = 17000;
+
+const INDIVIDUAL_TRAINS =
+  TOKYO_OSAKA + OSAKA_KYOTO + KYOTO_TAKAYAMA + KANAZAWA_TOKYO + TOKYO_NAGANO_RT;
+
+const NON_JR_EXTRAS = 12000;
+
+const INDIVIDUAL_TOTAL = INDIVIDUAL_TRAINS + NON_JR_EXTRAS;
+
+/* =========================
+   BREAKDOWN (SEPARADO)
+========================= */
+
+const JR_BREAKDOWN: LineItem[] = [
+  {
+    label: "Tokyo → Osaka (Shinkansen)",
+    value: TOKYO_OSAKA,
+    note: "Hikari/Kodama (JR Pass cubre Hikari).",
+  },
+  { label: "Osaka → Kyoto (JR local)", value: OSAKA_KYOTO },
+  {
+    label: "Kyoto → Takayama (via Nagoya + Ltd. Express)",
+    value: KYOTO_TAKAYAMA,
+    note: "Hida / conexiones (estimado).",
+  },
+  { label: "Kanazawa → Tokyo (Hokuriku Shinkansen)", value: KANAZAWA_TOKYO },
+  {
+    label: "Tokyo ↔ Nagano (Shinkansen RT)",
+    value: TOKYO_NAGANO_RT,
+    note: "Ida y vuelta aprox.",
+  },
+];
+
+const NON_JR_BREAKDOWN: LineItem[] = [
+  {
+    label: "Metro/urbano (Tokio/Osaka/Kioto)",
+    value: 7000,
+    note: "IC Card (varios días).",
+  },
+  {
+    label: "Bus: Takayama → Shirakawa-go → Kanazawa",
+    value: 3600,
+    note: "No es JR.",
+  },
+  {
+    label: "Fuji / Kawaguchiko (bus/privado)",
+    value: 1400,
+    note: "Varía por ruta/operador.",
+  },
+];
 
 export function ShinkansenSection() {
-  const savings = JR_PASS_14 - INDIVIDUAL_BASE; // + => JR Pass es más caro (no conviene)
-
   return (
     <section
       id="shinkansen"
@@ -39,16 +102,23 @@ export function ShinkansenSection() {
           </h2>
 
           <p className="text-muted-foreground mx-auto max-w-2xl text-base text-balance sm:text-lg">
-            Analizamos si el JR Pass realmente conviene… y para esta ruta base, no.
+            Con Nagano en Shinkansen y sin Hiroshima
           </p>
 
           <p className="text-muted-foreground/80 mx-auto mt-3 max-w-3xl text-xs sm:text-sm">
-            Nota: Este análisis es para{" "}
+            Trenes (JR/Shinkansen) estimados:{" "}
             <span className="text-foreground font-semibold">
-              nuestro itinerario actual
+              ~¥{INDIVIDUAL_TRAINS.toLocaleString("en-US")}
+            </span>{" "}
+            + extras urbanos/buses aprox{" "}
+            <span className="text-foreground font-semibold">
+              ~¥{NON_JR_EXTRAS.toLocaleString("en-US")}
+            </span>{" "}
+            = total viaje{" "}
+            <span className="text-foreground font-semibold">
+              ~¥{INDIVIDUAL_TOTAL.toLocaleString("en-US")}
             </span>
-            . Si agregamos trayectos largos extra (ej. Hiroshima), la recomendación puede
-            cambiar.
+            .
           </p>
         </div>
 
@@ -66,7 +136,6 @@ export function ShinkansenSection() {
                 </h3>
               </div>
 
-              {/* Mini "cubre / no cubre" */}
               <div className="mb-6 grid gap-3 sm:grid-cols-2">
                 <div className="border-border bg-muted/40 rounded-xl border p-4">
                   <p className="text-foreground mb-2 text-sm font-semibold">
@@ -75,11 +144,11 @@ export function ShinkansenSection() {
                   <ul className="text-muted-foreground space-y-2 text-sm">
                     <li className="flex gap-2">
                       <MinusCircle className="text-muted-foreground mt-0.5 h-4 w-4 opacity-70" />
-                      <span>Trenes JR + algunos Shinkansen</span>
+                      <span>Shinkansen (Hikari/Kodama) y JR intercity</span>
                     </li>
                     <li className="flex gap-2">
                       <MinusCircle className="text-muted-foreground mt-0.5 h-4 w-4 opacity-70" />
-                      <span>JR local en varias ciudades</span>
+                      <span>Algunos tramos JR locales</span>
                     </li>
                   </ul>
                 </div>
@@ -91,11 +160,11 @@ export function ShinkansenSection() {
                   <ul className="text-muted-foreground space-y-2 text-sm">
                     <li className="flex gap-2">
                       <MinusCircle className="text-destructive mt-0.5 h-4 w-4 opacity-80" />
-                      <span>Metro y líneas privadas</span>
+                      <span>Metro y líneas privadas (Tokio/Osaka/Kioto)</span>
                     </li>
                     <li className="flex gap-2">
                       <MinusCircle className="text-destructive mt-0.5 h-4 w-4 opacity-80" />
-                      <span>Buses a Shirakawa-go / Fuji</span>
+                      <span>Buses a Shirakawa-go y acceso a Fuji</span>
                     </li>
                   </ul>
                 </div>
@@ -104,22 +173,19 @@ export function ShinkansenSection() {
               <ul className="text-muted-foreground space-y-3.5 text-sm sm:text-base">
                 <li className="flex gap-3">
                   <MinusCircle className="text-destructive mt-0.5 h-5 w-5 shrink-0" />
-                  <span>Los trayectos largos están concentrados en pocos días</span>
-                </li>
-                <li className="flex gap-3">
-                  <MinusCircle className="text-destructive mt-0.5 h-5 w-5 shrink-0" />
                   <span>
-                    Day trips como Kawaguchiko y Shirakawa-go no están bien cubiertos
+                    Aunque Nagano sea Shinkansen, tus “días caros” son pocos para
+                    amortizar el pase
                   </span>
                 </li>
                 <li className="flex gap-3">
                   <MinusCircle className="text-destructive mt-0.5 h-5 w-5 shrink-0" />
-                  <span>Metro y trenes privados no están incluidos</span>
+                  <span>Parte clave del plan usa buses/privados (Shirakawa-go/Fuji)</span>
                 </li>
                 <li className="flex gap-3">
                   <MinusCircle className="text-destructive mt-0.5 h-5 w-5 shrink-0" />
                   <span>
-                    El costo del pase supera el gasto real en trenes individuales
+                    El pase termina siendo más caro que pagar tramos específicos
                   </span>
                 </li>
               </ul>
@@ -142,28 +208,27 @@ export function ShinkansenSection() {
               <ul className="text-muted-foreground space-y-3.5 text-sm sm:text-base">
                 <li className="flex gap-3">
                   <PlusCircle className="text-accent mt-0.5 h-5 w-5 shrink-0" />
-                  <span>Shinkansen individuales solo cuando se necesitan</span>
+                  <span>Shinkansen individual: Tokio → Osaka</span>
                 </li>
                 <li className="flex gap-3">
                   <PlusCircle className="text-accent mt-0.5 h-5 w-5 shrink-0" />
-                  <span>IC Card (Suica / Pasmo) para metro y transporte diario</span>
+                  <span>Takayama/Kanazawa: mezcla tren + bus (lo más práctico)</span>
                 </li>
                 <li className="flex gap-3">
                   <PlusCircle className="text-accent mt-0.5 h-5 w-5 shrink-0" />
-                  <span>Buses locales para zonas rurales</span>
+                  <span>Nagano en Shinkansen (mejor experiencia/tiempo)</span>
                 </li>
                 <li className="flex gap-3">
                   <PlusCircle className="text-accent mt-0.5 h-5 w-5 shrink-0" />
-                  <span>Más flexibilidad y menor costo total</span>
+                  <span>IC Card para metro + buses/tours cuando toque</span>
                 </li>
               </ul>
 
-              {/* Extra micro-tip */}
               <div className="border-accent/20 bg-accent/5 mt-6 rounded-xl border p-4">
                 <p className="text-foreground text-sm font-semibold">Tip rápido</p>
                 <p className="text-muted-foreground mt-1 text-sm">
-                  En Tokio/Osaka/Kioto te salva una IC Card para entrar/salir sin pensar.
-                  El Shinkansen lo compras solo en los días clave.
+                  Compra Shinkansen en los días clave y usa IC Card para todo lo urbano.
+                  Es la combinación más barata y flexible.
                 </p>
               </div>
             </div>
@@ -182,44 +247,55 @@ export function ShinkansenSection() {
                     Resumen de costos
                   </h3>
                 </div>
-
-                {/* ✅ Savings chip */}
-                <span className="border-accent/20 bg-accent/10 text-accent rounded-full border px-3 py-1 text-xs font-semibold sm:text-sm">
-                  Ahorro aprox: ¥{savings.toLocaleString("en-US")}
-                </span>
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="border-border bg-muted/50 hover:bg-muted rounded-xl border p-6 transition-colors">
                   <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase sm:text-sm">
-                    JR Pass 14 días
+                    JR Pass 7 días
                   </p>
                   <p className="text-destructive text-2xl font-bold sm:text-3xl">
-                    ¥{JR_PASS_14.toLocaleString("en-US")}
+                    ¥{JR_PASS_7.toLocaleString("en-US")}
+                  </p>
+                  <p className="text-muted-foreground mt-2 text-xs">
+                    *Aún pagarías metro + buses aparte
                   </p>
                 </div>
 
-                <div className="border-border bg-muted/50 hover:bg-muted rounded-xl border p-6 transition-colors">
-                  <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase sm:text-sm">
-                    Trenes individuales
-                  </p>
-                  <p className="text-accent text-2xl font-bold sm:text-3xl">
-                    ¥{INDIVIDUAL_BASE.toLocaleString("en-US")}
-                  </p>
-                </div>
+                {/* ✅ Card clickeable + modal */}
+                <TrainBreakdownDialog
+                  totalJr={INDIVIDUAL_TRAINS}
+                  totalNonJr={NON_JR_EXTRAS}
+                  itemsJr={JR_BREAKDOWN}
+                  itemsNonJr={NON_JR_BREAKDOWN}
+                />
 
                 <div className="border-accent/20 bg-accent/10 rounded-xl border p-6 sm:col-span-2 lg:col-span-1">
                   <p className="text-accent mb-2 text-xs font-semibold tracking-wide uppercase sm:text-sm">
                     Conclusión
                   </p>
                   <p className="text-foreground text-base font-semibold sm:text-lg">
-                    Ahorro + flexibilidad + mejor experiencia
+                    Mejor individual + IC Card
                   </p>
                   <p className="text-muted-foreground mt-2 text-sm">
-                    Pagamos solo lo que usamos y evitamos un pase caro para días
-                    “ligeros”.
+                    Pagas solo lo necesario y el resto (metro/buses) igual lo ibas a
+                    pagar.
                   </p>
                 </div>
+              </div>
+
+              <div className="border-border bg-muted/40 mt-6 rounded-xl border p-4">
+                <p className="text-foreground text-sm font-semibold">Nota honesta</p>
+                <p className="text-muted-foreground mt-1 text-sm">
+                  El total del viaje suele ser trenes (~¥
+                  {INDIVIDUAL_TRAINS.toLocaleString("en-US")}) + extras (~¥
+                  {NON_JR_EXTRAS.toLocaleString("en-US")}) ≈{" "}
+                  <span className="text-foreground font-semibold">
+                    ¥{INDIVIDUAL_TOTAL.toLocaleString("en-US")}
+                  </span>
+                  . Con JR Pass aún sumarías extras, así que el pase no se amortiza en
+                  este plan.
+                </p>
               </div>
             </div>
           </Card>

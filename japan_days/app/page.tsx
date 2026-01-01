@@ -6,7 +6,7 @@ import { DestinationsSection } from "@/components/sections/DestinationsSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { ItinerarySection } from "@/components/sections/itinerary/ItinerarySection";
 import { ProgressBar } from "@/components/sections/ProgressBar";
-import { ShinkansenSection } from "@/components/sections/ShinkansenSection";
+import { ShinkansenSection } from "@/components/sections/shinkansen/ShinkansenSection";
 import { destinations, itineraryDays } from "@/data/japan";
 import { useEffect, useRef, useState } from "react";
 
