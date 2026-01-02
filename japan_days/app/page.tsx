@@ -16,6 +16,10 @@ export default function Page() {
 
   const navRef = useRef<HTMLElement | null>(null);
 
+  // ✅ Lock para evitar “saltos” del indicador durante scroll programático
+  const programmaticScrollRef = useRef(false);
+  const unlockTimerRef = useRef<number | null>(null);
+
   // ✅ 1) Evita que el browser/Next restaure el scroll + fuerza top al montar
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
@@ -36,21 +40,17 @@ export default function Page() {
       document.documentElement.style.setProperty("--vh-fixed", `${vh}px`);
     };
 
-    // Inicial
     setNavOffset();
     setFixedVh();
 
-    // Asegura medición tras layout/fonts
     requestAnimationFrame(() => {
       setNavOffset();
       setFixedVh();
     });
 
-    // Observa cambios reales del navbar (más estable que resize)
     const ro = new ResizeObserver(() => setNavOffset());
     if (navRef.current) ro.observe(navRef.current);
 
-    // vh fijo solo cambia si rota
     window.addEventListener("orientationchange", setFixedVh);
 
     return () => {
@@ -59,10 +59,92 @@ export default function Page() {
     };
   }, []);
 
+  // ✅ 3) ScrollSpy (IntersectionObserver) para scroll manual
+  useEffect(() => {
+    const ids: SectionId[] = ["home", "itinerary", "shinkansen", "destinations"];
+
+    const getNavOffset = () =>
+      parseFloat(
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--nav-offset")
+          .replace("px", ""),
+      ) || 72;
+
+    let rafId: number | null = null;
+    let obs: IntersectionObserver | null = null;
+
+    const setup = () => {
+      obs?.disconnect();
+
+      const nav = getNavOffset();
+
+      obs = new IntersectionObserver(
+        (entries) => {
+          if (rafId) cancelAnimationFrame(rafId);
+
+          rafId = requestAnimationFrame(() => {
+            // ✅ si estamos haciendo scroll programático, NO actualices activeSection
+            if (programmaticScrollRef.current) return;
+
+            const visible = entries
+              .filter((e) => e.isIntersecting)
+              .map((e) => ({
+                id: e.target.id as SectionId,
+                ratio: e.intersectionRatio,
+                top: (e.target as HTMLElement).getBoundingClientRect().top,
+              }));
+
+            if (!visible.length) return;
+
+            visible.sort((a, b) => {
+              const aDist = Math.abs(a.top - nav);
+              const bDist = Math.abs(b.top - nav);
+              if (aDist !== bDist) return aDist - bDist;
+              return b.ratio - a.ratio;
+            });
+
+            const next = visible[0]?.id;
+            if (next) setActiveSection(next);
+          });
+        },
+        {
+          root: null,
+          rootMargin: `-${nav}px 0px -55% 0px`,
+          threshold: [0.05, 0.15, 0.3, 0.5, 0.75],
+        },
+      );
+
+      ids.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) obs!.observe(el);
+      });
+    };
+
+    setup();
+    window.addEventListener("resize", setup);
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", setup);
+      obs?.disconnect();
+    };
+  }, []);
+
+  // ✅ Limpia timers
+  useEffect(() => {
+    return () => {
+      if (unlockTimerRef.current) window.clearTimeout(unlockTimerRef.current);
+    };
+  }, []);
+
   const scrollToId = (id: SectionId) => {
     const el = document.getElementById(id);
     if (!el) return;
 
+    // ✅ 1) lock scrollspy para que no brinque por secciones intermedias
+    programmaticScrollRef.current = true;
+
+    // ✅ set inmediato (indicator se queda en el destino)
     setActiveSection(id);
 
     const navOffset =
@@ -76,10 +158,32 @@ export default function Page() {
 
     const y = el.getBoundingClientRect().top + window.scrollY - navOffset + EXTRA_OFFSET;
 
-    window.scrollTo({
-      top: y,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: y, behavior: "smooth" });
+
+    // ✅ 2) desbloquea cuando termina el smooth scroll (detector)
+    if (unlockTimerRef.current) window.clearTimeout(unlockTimerRef.current);
+
+    let lastY = window.scrollY;
+    let stillFrames = 0;
+
+    const tick = () => {
+      const nowY = window.scrollY;
+
+      if (Math.abs(nowY - lastY) < 1) stillFrames += 1;
+      else stillFrames = 0;
+
+      lastY = nowY;
+
+      // ~10 frames quietos => terminó
+      if (stillFrames >= 10) {
+        programmaticScrollRef.current = false;
+        return;
+      }
+
+      unlockTimerRef.current = window.setTimeout(tick, 16);
+    };
+
+    tick();
   };
 
   return (
