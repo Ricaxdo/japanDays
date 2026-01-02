@@ -36,3 +36,5 @@ export type ItinerarySectionProps = {
   currentDay: number;
   onChangeDay: (day: number) => void;
 };
+
+export type ItineraryView = "carousel" | "list";

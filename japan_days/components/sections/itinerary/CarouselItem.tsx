@@ -1,9 +1,7 @@
 "use client";
 
 import { motion, useTransform } from "framer-motion";
-import * as React from "react";
 import { BigDayCard } from "./BigDayCard";
-import { DayDetailsDialog } from "./DayDetailsDialog";
 import { ITINERARY } from "./itinerary.constants";
 import type { Day } from "./itinerary.types";
 
@@ -30,8 +28,6 @@ export function CarouselItem({
   const filter = useTransform(blur, (b) => `blur(${b}px)`);
   const pointerEvents = useTransform(pos, (p) => (Math.abs(p) <= 1.6 ? "auto" : "none"));
 
-  const [open, setOpen] = React.useState(false);
-
   return (
     <>
       <motion.div
@@ -43,15 +39,12 @@ export function CarouselItem({
           type="button"
           onClick={() => {
             onClick(); // centra el item
-            setOpen(true); // abre modal
           }}
           className="w-full text-left"
         >
           <BigDayCard day={day} blurMv={blur} />
         </button>
       </motion.div>
-
-      <DayDetailsDialog day={day} open={open} onOpenChange={setOpen} />
     </>
   );
 }
