@@ -77,9 +77,8 @@ export function TrainBreakdownDialog({
         <DialogContent className="max-h-[90vh] gap-0 p-0 sm:max-w-[1000px]">
           {/* Header fijo */}
           <DialogHeader className="border-b p-4 sm:p-6">
-            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <Receipt className="h-4 w-4 sm:h-5 sm:w-5" />
-              Desglose de transporte (aprox.)
+            <DialogTitle className="mr-5 flex items-center gap-2 text-base sm:text-lg">
+              Desglose de transporte aprox.
             </DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
               Estimaciones. Puede variar por temporada, asiento y horarios.
