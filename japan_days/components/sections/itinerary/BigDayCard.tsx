@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { motion, useTransform } from "framer-motion";
+import { Info } from "lucide-react";
 import type { Day } from "./itinerary.types";
 
 export function BigDayCard({
@@ -19,7 +20,7 @@ export function BigDayCard({
   return (
     <Card
       className={[
-        "bg-card border-border/70 relative overflow-hidden rounded-2xl shadow-sm",
+        "group bg-card border-border/70 relative overflow-hidden rounded-2xl shadow-sm",
         "p-6 md:p-14",
         className,
       ].join(" ")}
@@ -57,6 +58,11 @@ export function BigDayCard({
             </p>
           </div>
         </div>
+      </div>
+      {/* Micro-hint: ver detalles */}
+      <div className="text-muted-foreground pointer-events-none absolute right-4 bottom-4 flex items-center gap-1.5 text-xs opacity-70 transition-opacity md:opacity-0 md:group-hover:opacity-80">
+        <Info className="h-3.5 w-3.5" />
+        <span>Ver detalles</span>
       </div>
     </Card>
   );
