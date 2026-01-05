@@ -57,7 +57,9 @@ export function DayDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="no-scrollbar flex max-h-[calc(100dvh-4rem)] flex-col gap-0 p-0 sm:max-w-4xl">
+      {/* ✅ usa height fijo (mejor en iOS) + overflow-hidden para asegurar scroll interno */}
+      <DialogContent className="no-scrollbar flex h-[calc(100dvh-4rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-4xl">
+        {/* ================= HEADER (no scroll) ================= */}
         <div className="from-accent/10 via-accent/5 relative shrink-0 bg-gradient-to-b to-transparent px-6 pt-6 pb-4">
           <DialogHeader>
             <div className="flex items-start gap-3">
@@ -89,15 +91,17 @@ export function DayDetailsDialog({
           </DialogHeader>
         </div>
 
+        {/* ================= BODY (scrollable area inside) ================= */}
         <div
           className={[
-            "grid gap-4 px-6 pb-6",
+            // ✅ flex-1 + min-h-0 => permite que el grid ocupe el resto y deje scrollear adentro
+            "grid min-h-0 flex-1 gap-4 px-6 pb-6",
             hasTips ? "lg:grid-cols-[1fr_280px]" : "lg:grid-cols-1",
           ].join(" ")}
         >
-          {/* Activities column with controlled scroll */}
-          <div className="relative flex min-h-0 flex-col">
-            <div className="no-scrollbar relative flex-1 space-y-3 overflow-y-auto pr-2">
+          {/* ============ ACTIVITIES (scroll) ============ */}
+          <div className="relative flex min-h-0 flex-col overflow-hidden">
+            <div className="no-scrollbar relative min-h-0 flex-1 touch-pan-y space-y-3 overflow-y-auto overscroll-contain pr-2">
               <div className="from-accent/30 via-accent/20 to-accent/10 absolute top-3 bottom-3 left-[10px] w-[2px] bg-gradient-to-b" />
 
               {(details?.activities?.length
@@ -126,10 +130,13 @@ export function DayDetailsDialog({
                                 {a.time}
                               </span>
                             )}
+
                             {lbl && (
                               <Badge
                                 variant="outline"
-                                className={`h-5 border px-2 text-xs font-semibold ${tagColor(a.tag)}`}
+                                className={`h-5 border px-2 text-xs font-semibold ${tagColor(
+                                  a.tag,
+                                )}`}
                               >
                                 {lbl}
                               </Badge>
@@ -156,7 +163,7 @@ export function DayDetailsDialog({
             </div>
           </div>
 
-          {/* Tips sidebar - fixed height, no scroll needed */}
+          {/* ============ TIPS SIDEBAR (desktop) ============ */}
           {details?.tips?.length ? (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -171,7 +178,7 @@ export function DayDetailsDialog({
               <ul className="space-y-2">
                 {details.tips.map((t, idx) => (
                   <motion.li
-                    key={t}
+                    key={`${t}-${idx}`}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.2, delay: 0.4 + idx * 0.05 }}
@@ -185,7 +192,7 @@ export function DayDetailsDialog({
             </motion.div>
           ) : null}
 
-          {/* Tips section for mobile - at bottom */}
+          {/* ============ TIPS (mobile, bottom) ============ */}
           {details?.tips?.length ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -198,9 +205,9 @@ export function DayDetailsDialog({
                 <p className="text-accent text-xs font-semibold">Tips rápidos</p>
               </div>
               <ul className="space-y-1.5">
-                {details.tips.map((t) => (
+                {details.tips.map((t, idx) => (
                   <li
-                    key={t}
+                    key={`${t}-${idx}`}
                     className="text-muted-foreground flex gap-2 text-xs leading-relaxed"
                   >
                     <span className="bg-accent mt-1.5 h-1 w-1 shrink-0 rounded-full" />

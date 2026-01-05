@@ -19,44 +19,83 @@ export const itineraryDays: Day[] = [
   {
     day: 1,
     date: "28 Feb",
-    location: "Narita",
-    description: "Llegada de los dos grupos, reunión y cena de bienvenida.",
+    location: "Tokio — llegada por Narita",
+    description:
+      "Llegada escalonada de los grupos, encuentro en el aeropuerto y traslado conjunto a Tokio.",
     icon: "🗼",
     details: {
-      summary: "Día de llegada, check-in y primer encuentro del grupo sin prisas.",
+      title: "Día 1: Llegada a Japón y reunión del grupo (Narita → Tokio)",
+      summary:
+        "Llegadas escalonadas a Narita. El primer grupo espera al segundo dentro del aeropuerto. Una vez reunidos, se realizan compras clave y el traslado conjunto a Tokio para cenar y descansar.",
       activities: [
         {
+          time: "Antes de aterrizar",
+          title: "Visit Japan Web + QR listo",
+          note: "Completa inmigración/aduana y guarda screenshots de tus QR (por si no hay señal o batería).",
+          tag: "must",
+        },
+        {
+          time: "Llegadas",
+          title: "Inmigración + equipaje + aduana",
+          note: "Cada grupo realiza su proceso de llegada. El primer grupo avanza y espera al segundo dentro del aeropuerto.",
+          tag: "move",
+        },
+        {
+          time: "Narita (zona pública)",
+          title: "Encuentro de ambos grupos",
+          note: "Punto acordado dentro del aeropuerto (zona arrivals / food court / estación). Tiempo para ir al baño, estirarse y reagruparse.",
+          tag: "must",
+        },
+        {
+          time: "Narita",
+          title: "Internet: eSIM (ideal) o SIM local",
+          note: "Compra inteligente: llegar con eSIM ya activa. Si no, comprar SIM en counters/tiendas mientras esperan.",
+          tag: "move",
+        },
+        {
+          time: "Narita (ATM / konbini)",
+          title: "Efectivo de arranque",
+          note: "Sacar un poco de yen para lo básico. El resto del viaje se puede pagar con IC card o tarjeta.",
+          tag: "move",
+        },
+        {
+          time: "Narita (estación JR)",
+          title: "Comprar Welcome Suica + cargar saldo",
+          note: "Todos con IC card lista antes de salir del aeropuerto.",
+          tag: "must",
+        },
+        {
           time: "Tarde",
-          title: "Llegada + migración + retiro de equipaje",
-          note: "Echarse un baño, comprar eSim/SUICA, visitar la tienda de pokemon.",
+          title: "Traslado conjunto Narita → Tokio (zona estratégica)",
+          note: "Usar tren rápido/directo según la zona del hotel. Prioridad: ir juntos y cómodos con maletas.",
           tag: "move",
         },
         {
           time: "Tarde",
-          title: "Check-in en Shinagawa",
-          note: "Dejen maletas y caminen un poco para “despegar”.",
+          title: "Check-in + descanso corto",
+          note: "Dejar maletas, hidratarse y resetear antes de la noche.",
           tag: "chill",
         },
         {
           time: "Noche",
-          title: "Reunión de los dos grupos",
-          note: "Punto fácil: lobby / estación cercana.",
-          tag: "must",
-        },
-        {
-          time: "Noche",
-          title: "Cena de bienvenida",
-          note: "Algo cerca para no morir de jetlag.",
+          title: "Cena de bienvenida del grupo completo",
+          note: "Cerca del hotel. Algo sencillo para no castigar el jetlag.",
           tag: "food",
         },
       ],
-      tips: ["Primer día: suave, no sobre-planear.", "Cambiar algo de dinero a yenes."],
+      tips: [
+        "Definir previamente el punto exacto de reunión dentro de Narita.",
+        "Mientras esperan al segundo grupo: SIM, Suica, baño y snacks.",
+        "Moverse juntos el Día 1 evita confusiones y cansancio innecesario.",
+        "Dormir bien hoy es clave para el Shinkansen del día siguiente.",
+      ],
     },
   },
+
   {
     day: 2,
     date: "01 Mar",
-    location: "Osaka",
+    location: "Tokio - Osaka",
     description: "Shinkansen a Osaka (2.5h). Noche de neones en Dotonbori.",
     icon: "🚄",
     details: {
@@ -118,7 +157,7 @@ export const itineraryDays: Day[] = [
   {
     day: 4,
     date: "03 Mar",
-    location: "Kioto",
+    location: "Osaka - Kioto",
     description: "Traslado corto (15 min). Templo Kiyomizu-dera y Gion.",
     icon: "⛩️",
     details: {
@@ -210,7 +249,7 @@ export const itineraryDays: Day[] = [
   {
     day: 7,
     date: "06 Mar",
-    location: "Takayama",
+    location: "Kioto - Takayama",
     description: "Tren escénico desde Kioto. Tarde en el pueblo samurái.",
     icon: "🏔️",
     details: {
@@ -240,7 +279,7 @@ export const itineraryDays: Day[] = [
   {
     day: 8,
     date: "07 Mar",
-    location: "Shirakawa-go",
+    location: "Takayama - Shirakawa-go - Tokio",
     description: "Día en la aldea. Por la tarde viajan a Tokio.",
     icon: "🏡",
     details: {
@@ -266,7 +305,7 @@ export const itineraryDays: Day[] = [
   {
     day: 9,
     date: "08 Mar",
-    location: "Tokio",
+    location: "Tokio - Shibuya & Harajuku",
     description: "Día libre para explorar Shibuya y Harajuku.",
     icon: "🛍️",
     details: {
@@ -286,7 +325,7 @@ export const itineraryDays: Day[] = [
   {
     day: 10,
     date: "09 Mar",
-    location: "Tokio (Nagano)",
+    location: "Tokio - Nagano",
     description: "Day trip a Nagano para ver los monos de nieve.",
     icon: "🐒",
     details: {
@@ -307,7 +346,7 @@ export const itineraryDays: Day[] = [
   {
     day: 11,
     date: "10 Mar",
-    location: "Tokio (Monte Fuji)",
+    location: "Tokio - Monte Fuji",
     description: "Day trip a Kawaguchiko para ver el Mt. Fuji.",
     icon: "🗻",
     details: {
@@ -328,7 +367,7 @@ export const itineraryDays: Day[] = [
   {
     day: 12,
     date: "11 Mar",
-    location: "Tokio",
+    location: "Tokio - Akihabara",
     description: "Akihabara, templos modernos o teamLab Planets.",
     icon: "🎮",
     details: {
